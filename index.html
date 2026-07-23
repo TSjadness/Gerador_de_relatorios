@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0E1633">
     <title>Gerador de Diagnóstico MEI — Uso Interno</title>
-    <!-- Revisão: sincronização entre situação, pendências e recomendações regularizada. -->
+    <link rel="icon" href="/images/logo_2.png" type="image/png" width="12" height="12">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
         href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <!-- jsPDF via CDN: se o time quiser eliminar a dependência de internet, baixe este arquivo e sirva localmente. -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
     <style>
         :root {
@@ -143,9 +143,8 @@
             margin: 0 auto;
             padding: 17px clamp(18px, 3vw, 34px);
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             gap: 18px 22px;
         }
 
@@ -158,7 +157,7 @@
         }
 
         .brand-logo {
-            height: 36px;
+            height: 40px;
             width: auto;
             display: block;
             flex-shrink: 0;
@@ -485,7 +484,8 @@
         .field select,
         .field textarea,
         .add-pendencia-row input,
-        .year-input {
+        .year-input,
+        .month-input {
             width: 100%;
             border: 1px solid var(--border);
             border-radius: 10px;
@@ -500,7 +500,8 @@
         .field select:hover,
         .field textarea:hover,
         .add-pendencia-row input:hover,
-        .year-input:hover {
+        .year-input:hover,
+        .month-input:hover {
             border-color: var(--border-strong);
         }
 
@@ -508,7 +509,8 @@
         .field select:focus,
         .field textarea:focus,
         .add-pendencia-row input:focus,
-        .year-input:focus {
+        .year-input:focus,
+        .month-input:focus {
             outline: none;
             border-color: var(--blue-600);
             box-shadow: 0 0 0 3px rgba(61, 90, 254, .12);
@@ -712,12 +714,53 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .das-detail-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .das-detail-box {
+            border: 1px solid #E1E5F0;
+            border-radius: 11px;
+            padding: 11px;
+            background: #FFFFFF;
+        }
+
+        .das-detail-title {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--navy-800);
+            margin-bottom: 2px;
+        }
+
+        .das-detail-copy {
+            margin: 0 0 9px;
+            font-size: 11px;
+            color: var(--text-faint);
+            line-height: 1.4;
+        }
+
+        .das-detail-box .year-input,
+        .das-detail-box .month-input {
+            flex: 1 1 120px;
+        }
+
+        .year-input,
+        .month-input {
+            min-height: 38px;
+            padding: 8px 10px;
         }
 
         .year-input {
             max-width: 130px;
-            min-height: 38px;
-            padding: 8px 10px;
+        }
+
+        .month-input {
+            max-width: 180px;
         }
 
         .btn-year-add {
@@ -839,13 +882,13 @@
             color: var(--text-faint);
         }
 
-        /* ---------- Sidebar / serviços ---------- */
+        /* ---------- Serviços recomendados ---------- */
         .services-meta {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .services-count {
@@ -854,24 +897,25 @@
         }
 
         .servicos-list {
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
         }
 
         .servico-item {
             position: relative;
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            grid-template-columns: auto minmax(0, 1fr) auto;
             align-items: flex-start;
             gap: 10px;
             font-size: 13px;
-            padding: 12px;
+            padding: 13px;
             border-radius: 12px;
             background: #F8F9FD;
             border: 1px solid #E4E7F0;
             cursor: pointer;
             transition: all .16s ease;
+            min-width: 0;
         }
 
         .servico-item:hover {
@@ -886,14 +930,15 @@
             box-shadow: 0 0 0 2px rgba(61, 90, 254, .08);
         }
 
-        .servico-item.plan {
+        .servico-item.featured {
             background: linear-gradient(135deg, #F7F9E5, #FBFDEB);
             border-color: #DDE9A4;
         }
 
-        .servico-item.plan.active {
+        .servico-item.featured.active {
             border-color: #A7BF2C;
             background: var(--lime-100);
+            box-shadow: 0 0 0 2px rgba(167, 191, 44, .10);
         }
 
         .servico-item input {
@@ -901,6 +946,10 @@
             height: 18px;
             accent-color: var(--blue-600);
             margin-top: 2px;
+        }
+
+        .servico-copy {
+            min-width: 0;
         }
 
         .servico-copy strong {
@@ -928,9 +977,10 @@
             text-transform: uppercase;
             letter-spacing: .04em;
             color: var(--text-soft);
+            white-space: nowrap;
         }
 
-        .servico-item.plan .service-badge {
+        .servico-item.featured .service-badge {
             background: var(--lime-400);
             border-color: var(--lime-400);
             color: var(--navy-900);
@@ -1009,44 +1059,74 @@
             right: 0;
             bottom: 0;
             z-index: 80;
-            padding: 12px clamp(18px, 2.6vw, 34px) max(12px, env(safe-area-inset-bottom));
+            padding: 12px 0 max(12px, env(safe-area-inset-bottom));
             background: linear-gradient(to top, rgba(238, 241, 248, .98) 70%, rgba(238, 241, 248, 0));
             pointer-events: none;
         }
 
         .pdf-action-inner {
+            width: 100%;
             max-width: 1540px;
             margin: 0 auto;
+            padding: 0 clamp(18px, 2.6vw, 34px);
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
             gap: clamp(18px, 2vw, 28px);
         }
 
-        .btn-primary-sticky {
+        .pdf-action-buttons {
             grid-column: 1;
-            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
             pointer-events: auto;
-            background: var(--lime-400);
-            color: var(--navy-900);
+        }
+
+        .btn-primary-sticky,
+        .btn-preview-sticky {
+            width: 100%;
             font-family: var(--font-display);
             font-weight: 700;
             font-size: 15px;
             padding: 16px 20px;
             border-radius: 14px;
-            border: 1px solid #C6DF3A;
             cursor: pointer;
-            box-shadow: 0 10px 24px rgba(14, 22, 51, .18);
-            transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+            transition: transform .15s ease, filter .15s ease, box-shadow .15s ease, opacity .15s ease;
         }
 
-        .btn-primary-sticky:hover {
+        .btn-primary-sticky {
+            pointer-events: auto;
+            background: var(--lime-400);
+            color: var(--navy-900);
+            border: 1px solid #C6DF3A;
+            box-shadow: 0 10px 24px rgba(14, 22, 51, .18);
+        }
+
+        .btn-preview-sticky {
+            background: var(--navy-900);
+            color: #fff;
+            border: 1px solid var(--navy-800);
+            box-shadow: 0 10px 24px rgba(14, 22, 51, .14);
+        }
+
+        .btn-primary-sticky:hover,
+        .btn-preview-sticky:hover {
             filter: brightness(.98);
             transform: translateY(-1px);
             box-shadow: 0 14px 28px rgba(14, 22, 51, .22);
         }
 
-        .btn-primary-sticky:active {
+        .btn-primary-sticky:active,
+        .btn-preview-sticky:active {
             transform: translateY(0);
+        }
+
+        .btn-primary-sticky:disabled,
+        .btn-preview-sticky:disabled {
+            opacity: .62;
+            cursor: wait;
+            transform: none;
+            filter: none;
         }
 
         /* ---------- Toast ---------- */
@@ -1125,6 +1205,7 @@
             .pdf-action-inner {
                 grid-template-columns: 1fr;
             }
+
         }
 
         @media (max-width:680px) {
@@ -1157,7 +1238,11 @@
             }
 
             .pdf-action-dock {
-                padding: 10px 14px max(10px, env(safe-area-inset-bottom));
+                padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+            }
+
+            .pdf-action-inner {
+                padding-inline: 14px;
             }
 
             .card {
@@ -1191,7 +1276,12 @@
                 align-items: stretch;
             }
 
-            .year-input {
+            .servicos-list {
+                grid-template-columns: 1fr;
+            }
+
+            .year-input,
+            .month-input {
                 max-width: none;
             }
 
@@ -1208,6 +1298,10 @@
         }
 
         @media (max-width:430px) {
+            .pdf-action-buttons {
+                grid-template-columns: 1fr;
+            }
+
             .situacao-options {
                 grid-template-columns: 1fr;
             }
@@ -1318,9 +1412,8 @@
                                 aria-describedby="erroNome">
                             <span class="field-error-msg" id="erroNome">Campo obrigatório</span>
                         </div>
-                        <div class="field" id="f-cpf"><label for="cpf">CPF</label><input id="cpf" type="text"
-                                inputmode="numeric" placeholder="000.000.000-00" maxlength="14"></div>
-                        <div class="field" id="f-cnpj"><label for="cnpj">CNPJ</label><input id="cnpj" type="text"
+
+                        <div class="field span-2" id="f-cnpj"><label for="cnpj">CNPJ</label><input id="cnpj" type="text"
                                 inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18"
                                 aria-describedby="erroCnpj"><span class="field-error-msg" id="erroCnpj">Campo
                                 obrigatório</span></div>
@@ -1331,11 +1424,8 @@
                             <span class="field-help" id="razaoHelp">Preenchimento automático: raiz do CNPJ + nome
                                 completo em letras maiúsculas. O campo continua editável.</span>
                         </div>
-                        <div class="field" id="f-cidade"><label for="cidade">Cidade</label><input id="cidade"
-                                type="text" placeholder="Cidade" autocomplete="address-level2"></div>
-                        <div class="field" id="f-uf"><label for="uf">UF</label><select id="uf">
-                                <option value="">—</option>
-                            </select></div>
+
+
                         <div class="field span-2" id="f-data"><label for="dataConsulta">Data da consulta</label><input
                                 id="dataConsulta" type="date"></div>
                     </div>
@@ -1397,23 +1487,25 @@
                             placeholder="Observações relevantes para o diagnóstico…"></textarea></div>
                 </section>
 
+                <section class="card" aria-labelledby="tituloServicos">
+                    <div class="section-head">
+                        <div class="section-title-wrap"><span class="section-icon" aria-hidden="true">05</span>
+                            <div>
+                                <h2 id="tituloServicos">Serviços recomendados</h2>
+                                <p class="card-sub">Selecione um ou mais serviços para apresentar no diagnóstico.</p>
+                            </div>
+                        </div>
+                        <span class="section-badge" id="servicesCount">0 selecionados</span>
+                    </div>
+                    <div class="services-meta"><span class="services-count">Os itens selecionados aparecerão no
+                            PDF.</span></div>
+                    <div class="servicos-list" id="servicosList" aria-label="Serviços recomendados para o cliente">
+                    </div>
+                </section>
+
             </section>
 
             <aside class="col-side" aria-label="Informações complementares">
-                <section class="card" aria-labelledby="tituloServicos">
-                    <div class="section-head">
-                        <div class="section-title-wrap"><span class="section-icon" aria-hidden="true">✓</span>
-                            <div>
-                                <h3 id="tituloServicos">Serviços que podemos oferecer</h3>
-                                <p class="hint">Uso interno — não aparece no PDF.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="services-meta"><span class="services-count" id="servicesCount"></span><span
-                            class="section-badge">Seleção interna</span></div>
-                    <div class="servicos-list" id="servicosList"></div>
-                </section>
-
                 <section class="card" aria-labelledby="tituloHistorico">
                     <div class="section-head">
                         <div class="section-title-wrap"><span class="section-icon" aria-hidden="true">↻</span>
@@ -1430,7 +1522,10 @@
 
         <div class="pdf-action-dock" aria-label="Ação principal do diagnóstico">
             <div class="pdf-action-inner">
-                <button id="btnGerarPDF" class="btn-primary-sticky" type="button">Gerar PDF do Diagnóstico</button>
+                <div class="pdf-action-buttons">
+                    <button id="btnGerarPDF" class="btn-primary-sticky" type="button">Gerar PDF do Diagnóstico</button>
+                    <button id="btnVisualizarPDF" class="btn-preview-sticky" type="button">Visualizar PDF</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1441,9 +1536,6 @@
             'use strict';
 
             /* ============ CONFIG ============ */
-            const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
-            const ufSelect = document.getElementById('uf');
-            UFS.forEach(uf => { const option = document.createElement('option'); option.value = uf; option.textContent = uf; ufSelect.appendChild(option); });
 
             const TXT = {
                 regular: '✔ Nenhuma pendência relevante foi identificada.\n\nMesmo assim, é importante manter o acompanhamento periódico do MEI para evitar problemas futuros.',
@@ -1457,6 +1549,7 @@
                 { id: 'dasn', label: 'DASN não entregue', description: 'Declaração anual ainda não transmitida.', allowYears: true, servicos: ['Regularização de pendências', 'Plano Gestão MEI'] },
                 { id: 'multas', label: 'Multas em aberto', description: 'Multas vinculadas ao CNPJ que precisam de análise.', allowYears: true, servicos: ['Regularização de pendências', 'Parcelamento de débitos'] },
                 { id: 'parcelamento', label: 'Necessidade de parcelamento', description: 'Débitos que podem exigir negociação ou parcelamento.', allowYears: true, servicos: ['Parcelamento de débitos', 'Plano Gestão MEI'] },
+                { id: 'divida_ativa', label: 'Dívida Ativa', description: 'Débitos inscritos em dívida ativa que exigem consulta e regularização.', allowYears: true, servicos: ['Regularização de pendências', 'Parcelamento de débitos', 'Plano Gestão MEI'] },
                 { id: 'alteracao', label: 'Alteração cadastral pendente', description: 'Dados empresariais que precisam ser atualizados.', allowYears: false, servicos: ['Atualização cadastral', 'Plano Gestão MEI'] },
                 { id: 'necessidade', label: 'Necessidade de apoio contábil', description: 'Orientação para procurar um contador de confiança.', allowYears: false, servicos: ['Assessoria contábil', 'Plano Gestão MEI'] },
                 { id: 'outro', label: 'Outro', description: 'Outra situação identificada na consulta.', allowYears: false, servicos: ['Plano Gestão MEI'] }
@@ -1468,6 +1561,7 @@
                 { id: 'dasn', label: 'DASN' },
                 { id: 'multas', label: 'Multas' },
                 { id: 'parcelamento', label: 'Parcelamento' },
+                { id: 'divida_ativa', label: 'Dívida Ativa' },
                 { id: 'alteracao', label: 'Alteração Cadastral' },
                 { id: 'preventiva', label: 'Consulta preventiva' },
                 { id: 'necessidade', label: 'Contador de confiança' }
@@ -1483,15 +1577,32 @@
                 consulta_preventiva: { situacao: 'regular', pendencias: [], recommendationIds: ['preventiva'], observacoes: '' }
             };
 
-            const SERVICE_INFO = {
-                'Regularização de pendências': 'Análise e apoio para colocar as obrigações em dia.',
-                'Parcelamento de débitos': 'Organização e solicitação de parcelamento quando disponível.',
-                'Plano Gestão MEI': 'Acompanhamento contínuo das obrigações e do CNPJ.',
-                'Atualização cadastral': 'Alteração e conferência dos dados do cadastro.',
-                'Assessoria contábil': 'Orientação profissional para conduzir a regularização.'
+            const SERVICE_CATALOG = [
+                { id: 'abertura_mei', label: 'Abertura MEI', description: 'Assessoria para formalização e abertura do CNPJ MEI.', badge: 'Serviço' },
+                { id: 'baixa_mei', label: 'Baixa do MEI', description: 'Apoio para encerramento regular das atividades do MEI.', badge: 'Serviço' },
+                { id: 'alteracao_mei', label: 'Alteração do MEI', description: 'Atualização de atividades, endereço e outros dados cadastrais.', badge: 'Serviço', aliases: ['Atualização cadastral'] },
+                { id: 'parcelamento_mei', label: 'Parcelamento do MEI', description: 'Organização e solicitação de parcelamento dos débitos do MEI.', badge: 'Serviço', aliases: ['Parcelamento de débitos'] },
+                { id: 'parcelamento_divida_ativa', label: 'Parcelamento da Dívida Ativa', description: 'Apoio para consultar e negociar débitos já inscritos em Dívida Ativa.', badge: 'Serviço' },
+                { id: 'regularizacao_das', label: 'Regularização do DAS', description: 'Regularização de guias mensais vencidas e competências pendentes.', badge: 'Serviço', aliases: ['Regularização de pendências'] },
+                { id: 'plano_gestao', label: 'Plano Gestão — Intermediário', pdfLabel: 'Plano Gestão — Intermediário (Mais escolhido)', description: 'Acompanhamento intermediário das obrigações e da rotina do CNPJ.', badge: 'Mais escolhido', featured: true, aliases: ['Plano Gestão MEI'] },
+                { id: 'plano_essencial', label: 'Plano Essencial — Base', description: 'Cobertura básica para acompanhamento das principais obrigações.', badge: 'Plano' },
+                { id: 'plano_crescer', label: 'Plano Crescer — Premium', description: 'Acompanhamento premium para quem deseja mais suporte e crescimento.', badge: 'Plano' },
+                { id: 'declaracao_anual', label: 'Declaração Anual', description: 'Assessoria para elaboração e transmissão da DASN-SIMEI.', badge: 'Serviço' }
+            ];
+            const PDF_LINKS = {
+                specialist: 'https://wa.me/5547996929584?text=Olá%2C%20gostaria%20de%20dar%20continuidade%20no%20meu%20atendimento',
+                plans: 'https://empreendamei.com.br/planos',
+                terms: 'https://portaldomeibrasil.com.br/termos-de-uso/'
             };
             const STATUS_LABELS = { regular: 'Regular', atencao: 'Atenção', pendencias: 'Pendências', critico: 'Crítico' };
             const STATUS_COLORS_PDF = { regular: [46, 158, 91], atencao: [198, 135, 12], pendencias: [200, 90, 38], critico: [196, 59, 48] };
+            const STATUS_CARD_COLORS_PDF = {
+                regular: { background: [228, 246, 235], border: [36, 125, 73], text: [36, 125, 73] },
+                atencao: { background: [251, 240, 221], border: [156, 103, 0], text: [156, 103, 0] },
+                pendencias: { background: [251, 231, 218], border: [168, 69, 28], text: [168, 69, 28] },
+                critico: { background: [250, 226, 223], border: [169, 46, 39], text: [169, 46, 39] }
+            };
+            const MONTH_NAMES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
             const LOGO_B64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAT0AAABTCAYAAADtEtADAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAB3ZSURBVHhe7d13VBNZGwfg30xCIHRRLIgUFyt2xS6urr0uKPaGFXsDFcvaQFRsLDbsXVxXlLV+gNgRe0MsCCoqggqCVCnJ94eQJTdkUgQWzX3OyfH43klhknnnzm3DGFZsKgZFUZSGYMkARVHUz4wmPYqiNApNehRFaRSa9CiK0ig06VEUpVFo0qMoSqPQpEdRlEahSY+iKI1Ckx5FURqFJj2KojQKTXoURWkUmvQoitIoNOlRFKVRaNKjKEqj0KRHUZRGoUmPoiiNQpMeRVEahSY9iqI0Ck16FEVpFJr0KIrSKExZuzGQoaE+bKpbQJkPlZmRhZiXb5Cdk0MWKY1lWdSqYQUdoQ5ZJMEyDAQCLTIsJT0jE1FRr5CZ9ZUsklKlsiksLcwgEAiQlpaOqOjXSE1NJzdTi7ZAgJzcXIhEIrJIruT4W5g6azn2H/qHLJJLKNTBwd3ecBw0lSyiKLUIhTowrWBChiXy8vLwLi6BDKulTCU9gZYW1nu7w7FvZ4jFij9W1tdsXAu7izEuC9ROfGNG9cfCeROhzZHUWJYFn88nw1Kysr7i7v3H6D94OudnmTF1JIYM7IUVq/3QrEk9WFmYYdjoOeRmagk6tQvDR7sh4UMiWSRXWU16VpZVMdbZCc2a1ENOTg5CQq9j284jCk8qVNlgYKCHYYP6oPNvrWFgoIfbdyOwaeshvH0XT24KAOjSqQ18vBeQYYlPiZ/RrtNQMqyWMpP09PV1MXf2OEydOAwMw5DFnBZ7+GKD714yzIlhGAwf3Ae+6xeRRd9luddmrNmwiwxLzJk1Fp1/a43OPUeDx2NxaO9aDBw2U1LOsixs69qgapVKSPiYiMjIF/ianS0pb9m8Id7Hf4SlRVXcvf8YaWkZYFkW9m2bwX//esyd741bdx4h8mm05PUaN6yDypUq4FVsHB5HRkleCyokPX19XTRtXA98Pg9PnkVj47pFMknP2socNWwskZGRiQePnqldg/3Vvjm2b/ZARVPpM//LV2/Rb/A0RMfESsUL8Hgs9PX1oKcrhFCoAz09IbQFAmhrf3uwLAMey5P8vnLzcvH1aw4yM7OQmpqO5JQvSExKRk5OLvnSlArMzCpi7/aVaN6sgVQ8L0+EsRMXIiAwSCoOAH16dcT+navJsETCh0TUrN+VDKulTLTp8XgsliyYgmmThquc8ACgebMGYFnV/hSHPp2xytOVDH83m18syZBcDMNAqKMt9f/Z053htWwWhLo6mDF5BEYM+13qOQvmumDxgino79AFQp1/L8lzc/O+/ZuXB5Ho3/OYtrYAPbq1BwCs8pgNsyoVJWXK4vFYBPhvxK/t7GBkaIBtG5eRm8C+rR0O7V0Lk3JG6N61PVZ7ukFLi7t2XBQdbQH27Vglk/CQn1R3bfWU+xu5EnIQV0IO4vyZPfjfyR04dWwrAo9uwjF/XxzZvx7++9bj8L61OLxvLQ7tXQP/fevx92EfBB7dhDOB2xB6bi8uhxzEnFlj1dpP1Lffys4tnjIJr6BslacrdLQFZFGpUi1TlAAjIwP4rFmIsc5OZJHSWJaBnOOgSONGD8DubSugqyski76bvAOysCqVTeEybhBWebgiIvKFJG5goIduXdrh9wGTcTwwGO6L12H0yH5SzwUAHR1tTHddgY+fkgAAIpEIV8PuIC83Dxcv38TT5zGSbTMzs7BqzXbcvR+JiMgobPCeX+iVlOPYtwsAwGPVFgQEBsF7vWxN1nmEA0aNnQf/o2ewYPF6VDWrCEMDfXIzhUaNcISRkQEZlmjUsA4MDYt+Xdu6NWBpYQYzs4owrWACIyMD6OnpQkdbAC0tPvh8HliWBcMw+U0WPGgLBNDT00V5E2NUNauEurV/wYK5Lrh34wT+XLsADerXUvmEqslsqluiQb1aZFiioqkJ+jkUT41NXf/pt8myLDyXzMTwIX2UShbFYZBTD3gunUGGS1ViYjJOnr6A1et2YMlyX0lcT1eIiqYmklpbUmIyPuUntsKSk78o1eaJ/HbSw/vWwttrDlraNUQ92xrkJgr93qcTsrKykJf3rYPk5u2H5Cbo1aODVFvmmf9dlipXVt3av5AhGdZW5mSo2OloCzBymANOB/hh1HAHspiSw9jYADwed1qxrav6b7A4cX+6EqSvr4s1XnMwfEgfsqjEOI9wxFbfpdAW/LfV6+ycHLyLS0DCh0SpRJGWnoH4hE+oUtkUAGBuXhn6+nqFnvmNvISXmyvbFrV/92rcf/gUw5zdcDboClmslHNBl6Gvrye5LPm1XXNyE5z4JwTVzKsAALS0+Ojdo4NKvcgF7tyLJEMyXr1+R4ZKjKGhPtavdseMqSPVulzXNIlJyZKTtjyPIp6RoVL1nyU933ULMWZUfzJcIhiGwbjRA+C9Yk6p1SjVkZaWgb+OncPFoP1YunAqTv69FV7efuRmcl26cgsrl8+GQ9/Okti5oCvo3LE15swaCyfHblLbK+vwX6chFotxYPcarPSYDad+sq/jt+MIdm71xCoPV4Rf+gu3bj9CckoquZlCB/3/4ez9vhp2B8nJX8hwiZs/ZwJa2DUkwxQhOuYNbt15RIYl3sd/xNGAc2S4VPG09cyWkMGSZGxsiLUr52Jg/x5kkdpeRL9GwIkguTWgcaMHYJWHK/h8HllU7CIio3DqzAUyLJHyJQ0Rj5/L7YG8e+8xgkKugmVZrP1zN27fiZAq//jpM+7cjSiy6//a9bvIycnF/YdPkPQ5BQBw/8ETxLx6i8Skz/DZtA9RL17jSX7PLgC8eRuP6zce4HP+9kURicQ4GnAOKSlfEPXiNbbu8Mf7+I94+eqtZJu49x9w5OhpaGnxcdD/JA4dOSX1GsoSicQ4H3odrVo2QoXy5SRxsViMm7cfYfzkP/DlS5rUcwq4u40nQ1JCL4YjLPwebt56iPBbD/D02Ut8+ZIKAwM9CDnGaQIAn8eDRbUq8D96Ru7vjPom+Pw11K1tA2src6lKxvv4j5jp5oXnUa+ktgeAWjWt4VjoZE1KT8+E75YDZFgtpT5kZcufSzBkYC8y/F3OBl3G0FGukjanwsY6O2GNV+nV8PyPnsGEKX+QYUpFLMuid88OGDygJ1JT07H+zz14+vwl5yVzSsJtMiTFrLo9MjIypZLWt04NBh5LZsBl7CCFnRa1G3bH+/iPZJgiMAyDOrWqY9rkEShvYoxDf51C4Mnzcr+/n3LISnkTY2xc/0exJzx5GIbBhLED4bV8VqklPKr4iEQiBJ48j0HDZ2HcpEWIfBot94BRllgslqmlicVi5OWJsGDxBixdsUmqrChdOrUlQ1QRxGIxIp9Gw2XqYjgNnY7jgcHf/f0Vl1JJeizLwnPpt17a0sCyLKa4DMVqTzcItOTPtKCoAiKRCBt89yI9PYMsklJfjd5vqmwp8ctbY2NDrPZ0LdY2PNIG371Y7PHv0I/xYwbAY8mM/6SXtrgvbwVaWrC0NIN9WztYW5mDZVm8jn2H0IvhePX6ncLZAwYGemjUoA5aNm+I8uWN8TUrGw8jnuHSlVtI+pxSLGdfoVAHFuZVYNesPqytzKGrq4OvWdl4FRuHm7ce4OWrt6UyfUzR5W0V63bIyMgkw1Ke3DsDMzP5A5PX+uzCshWbybBKjIwM8Kt9czRpZAstLT6ePYvB3oMnyM2A/BO4oaE+zKtWRp1a1WFRzQxGRvrQ0uIjMzMLsW/i8eDRU0THxMpt61QFj8eioml5NG1si9q1qsPExBgMA6SkpOHlq7d4+Ogp3ryLR1oa98lBVaV5eVuiSU9bIIDX8lkyvbTFcaAhf/ZBzMs36NB1JDIyMsHn8zCwfw9s9lkstV1RlzVcGIZR+5JYUdJz7NsFu7etIMMAgLv3I9Gh6wggf9+1atkIW32XSoawkGJevsEYlwW4//CpzD41NNTHhDED4e42Qe64qRP/hMBt/mp8/PRZpf2D/IOxcqUKGDXcAbOmOSsczrFsxWbs3ncMn5UYY6goeVWyaI2sr/9OzSug6HnKJL3nj/6HShXLk2GJXo4uuHJN+n1CzuyGXdP6UrEC8/9Yh01+h4D8sX9TJw3HwnkTpbZ5HRuHBnb/XgUJtLRQubIpOtg3x0L3SUXOTinK6XOXsHj5n0qdDEl6erroYN8cmzb8AWNjQ7JYRlj4Pfyx7E9EPH4uc0KLigji/Mwjxs5F4MnzUrGfIumZlDPCJp/F6NHVXip+6cpNHDh8UuFYHgAKZ1l8SU3D1Wt3kJn1FQzDYPqUEXB3myA1zeXDxySsXrcDSUnJUHCsAfnvaWCgj4XzXDhXfZBHUdLr1rkdjhxYT4YBAC+iY9G0tSNMK5jAZ+0C9MyfPsYlL08E7/U7sHbDbslQj04dW8N7hRuqW1cjN5eRlpYBl6mLcZKjx5mkp6eLtSvnonePDtDX1yWL5UpO/oJlXpuxc8/fZJEURcmrpJKebR0bXA45KLeXPzsnBxY1OiAzM0sqfjZwO1q3bCwVK+C9fic8Vm5B7ZrVsW71PLRp1YTcRJL0eDwWI4c5oFf3X9G2TVO1rlTEYjECAoPh5r4aiUnJZLEMhmHQ36Erpk0ajgb15c+kkGfkuHk48U+IVEwjk55QRxurPF0xcpj0SPakzymwbdKL84enDi0tPkYNd8QaL+nVShKTktG4pQNS1BgvZm1ljishB2FgIDs4mIuipNe2dVOcPl702LuED4mw7zQUl0MOctY2SGKxGM4T5uPEPyFoYdcA/zu5k9yEU16eCC3snRD14jVZJMOimhkC/H1Rw0b5OcakjVsPYpnnJqmFFApTlLxKIukZGRnAb+NSdO8ifZIuIBaL4TbfG9t3/UUW4eSxLbBva0eGAQCbtx3CwiUbcOKvTXK3KUh62gIBDu5Zg86/tSY3UVlmZhZa2A/A69g4skiCZVn0+70Ltm1aprDXWp6GzfvKDBYv60lPvb+Ug4GBHrZvXi6T8ADAy9tP7o9OXQzDYMyo/vBYIju1LPRiONLS1Fvp4927BFy/cZ8MfzeyllCYgb4uDuz2VinhIX8f+G1cilHDHXD8yEayWCEej8WZE9sVTrK3sqyKvw/7fFfCA4DJE4bINHn8F1iWhb6+LmZNd8bxIxvlJjwAePr8pUyNpgDXpSSfx8fyxTPQrk0zskjG1+xsPH7y71zs7yEU6sBv4zLO2qJj387flfBeRMci9s17MlzmqffXyqGnp4uN6xahd8+OZBEA4Omzl2Tou2gLBJg+ZQRWeRS9ckNqanqRY/eUkSfKQ5Yaje/yai8FuF5TV1cot21IEW2BABu856u9iIJphXLo1qUdGZYwNNTH3u0rUauGNVkkIRKJ8Dn5Cz4lfuZMBAzDwGv5LFhUMyOLSlTI6V24ev4Qwi76I/LeaSTF3cC76MtYPH8ymja2JTcH8mt4US9eo1OPUZIFHkhcTTUWFlUwbrST0m3EweevkSEg/3OIRCLJQ1G7KAC0atEIw+SMmNDRFsB15hiFCY/r/Y4GnJNpS/4RcP/FKjAyMsCOLR74vU8nskhC2S9eWWNG9Ye72wQyXKaRjb5lBcMwGMtR+5o2aTgaNaxDhiWuht2B09AZ6OkwAT36jofjoKnw23GE3ExK4NFNxf6b4GJbtwbq16sJ2zo2qGpWSeF7i0QiLPHwRdfeYzh7K0Vi+Qd+545tVBo2df3GPXxK/AzkJ7qPn5LguWornIZOR/8h09Fv8DT0GzwN/YdMh5f3tiIv8wvzXDJDamZLgQ7tW6JWDSsyLJGWloE5C7zRf8i39+0/ZDpGjXdHWPg9SRK8fPUW+bQfQrEkPV1dIVZ5uMp0WpQUgZYWZkwdCa/ls4qs4ZVleXnyawWFJSYl42jAOdRu2B2WtTpiz/4ApRqmC0THxGKdz25UtmqLJq0ccfHyTYVNCzVrWBfZiF/NvArcZo4hw0D+gRkUcg09HSYgJDQMjyOj8CzqJS5fvYU5C7zhvmhdkbUE5LcP/tahFRkuE+Lef0Db34Ziw8Z9Cvd74fULSfJ6zuXJyxPh9NmLuHz1Fuza9oeNbResXrcDwefDcP7CdYReDEfoxXCEhIZh5Zpt6NRjFGebtVCog/btZNsSJ7sM4azlDRw+E347juD8hes4f+E6QkLDcDwwGN37jkNly7bw3XIAMS/fkE/7Icj/q5VkWsEEe7evxOABPcmiEjN7hjPmuXLPsyyrcopYCYWUnp6BydOXYezEhXgf/xHJyV8w3XUFps5crvDMDgCPIp6jr9NkLF2xCZmZWYiOiUVfp0nYtusouakULS0+2hMrqDAMg0Xu0kMsCrv34AlGu8hfo2//4UC5l/R8Pg91alUnw2VClcqmOLRnDXZs8ZC7fp86Ih4/R+9+E9G97zjJw3m8u9Q28xevx+8DJivVsfQo4jk2bj1IhqXYNZNtMlG0PNede4/JkMTX7GwsWuqD+IRPZNEP4buSnrGxIbyWz0KXTm3IohKhLRDA3W085rmOl1px+GdzLDAYZ4Nk16MLPh+Ge/cVL72058BxvHkr28C8et0OubWuAuTJy8jIAHVr20jFCrt9J4JzWfjU1HTO4TBczSH/JYZhYGVZFU6O3fDgZiBat2ws93JYmXatzKyv8NtxBPadh+Hy1VsIC78neZAJJi0tQ25bNMuyMK1gAts6NmjZvCHat2sOgUCL83utUL6czGcXcHRwAMDE8YOhp6f8cKQfidpJz8jIADu3eKi9XJE6pk4ahhlTR5Hhn8rX7Gy4L1pLhoH8cWLhCnqUs75mY9+Bokf3Z2Rk4uZt+cv+AEBNG+l2HotqVVC3jvyk57NpHxmSsaaIlZYLNGlUV+aALGtMyhnh70M+RY6xAwBlBoAeDTiHuQvXyE1mXHR1hXCbOQYhZ3bjUtB+nD+7B6eO++HE0c0I8PfF7OnOnPvQ2MhQpvz9+w9S/yctmOOC4NO70N+hq8xzf3RqJz3PJTNLrT2GYRiMdXbCwnkTf7g2PFWlpWVwNpqHXLhOhqSkp2fIXY9OLBZj975jZFgK2aZXztiIs10q/NIRvH1xifMRek7+TZtYlgXLls5BVbN+V5jbtEe1Gr+iTqMe+H3AZPjtOIJzwVcU9rrr6enirwPrYV61MlmkFN/N+zlrYyQ9PV307f0bzpzYhjdRF7Fw3kTYNa2PBvVrwdLCDCbljCDU0ZYsgc9FKJS9Ktq9P4Dz8/D5PNjWscGOLR54/SwU81zHf6tVqtApU1Zx7y0OpbnEO8sy6Na5Xam9339JUU1A0b0/FT3/YcRzMiSN2MdtWhU906CAgYGewoeiWRul9b2mpmUgNTUdX76kIe79B1y4dANzFnhj6ChXtOs4lHPxS+QnotUr3DhPAvIUXntQkcqVKuDMcT/s9vNCm1ZNZE5EquLxZJ/vf/SMUh0RDMPAyMgA7m7j8dfBDQg9t5ezF/9HoPq39x8ppeOizFOU1BRRddXhZk3qkaGfTm5uHp5FvcQwZzeFa+U1rF8LVc1Uq+3FxX3gHLdYgGEY2Le1w+1rx9CoYR21kquyMjOzsHi5r8IabmE62gLUr1cToWf3wmv5LJVnK5UVJbdXqZ9CuXJGZOinFZ/wCcOc3Tgv+6qaVUJ1a+6eT5KiIS8FKpqaYJefZ6klk1NnL6J7n3EKl9Mi8XgsXMYOwqE9a0qtll6caNKjOH38WPQshOLElWRKW3zCJ85hQQzDKLUKiapY9tuN37kWucjNzUPoxXCs9dmFrr3HwMa2CyxqdkC/wdM4pzfKIxaLcefeY/RydMHxwGCVan0sy8K+rR3c3caXaI20JPxYn5Yqdc9fyN7PoLhxDe4tbWKxGCIFA8i55rOqq3fPDgqbEhYu2YABw2Zg2YrNCL/5AB8/JSElJRWZmVnfdeK4ez8So10WoFX7QQgLv0cWc3Jy7IbyJsZkuEyjSY/iRK4dR+rl6AKjSs2+6/E9B2xxY1kWfAVrAxZ1q83v1bxZAzIkZd+hQPjtPKJU26A6RCIRomNi0dNhAhrY9cHCJRtwLviKwjGI1lbmqMkxna0sokmP4vRBweXtOGcnMvRD+9XeTmFNLk3FNjBF+HweLKt9u2ewPGfPXZKbgFiWBaNg2IqyRCIRXsfGwXfLAQwcNhPd+oyV3FmvKAzDoJ5tTTJcphXPnqJ+WvHErR5Jbds0VXtlmLKmdcvG8F4hvSYjKTU1He/iuAf2qorP4ylsJ+RqAqhuXa3Exs/dvP1I4e08DQ2Kb5peaaBJj+KU8CERT57FkGGJ8ibGCDq1E717dlT6wBNoaZWZaYQMw0Coo41WLRrh0N61Cu9/G/k0GtHRiufEqkIsVjwUqXYt6yJ7SvX1dbFw3kSVOxO0BQL06dURurrCIl+3gFgsVrgmJddg+rJItT1FaRyRSATvdTvIsBSWZbFzqwf+PuwDt5lj0KOrPWrVsEY18yqwsqyKhg1qo3ePDnAZNwieS2fimP+fOPcP92uWhGmThmOKy1DJY+7scVi/2h3nz+7B2cDtKKegtoX8lZCLe3mwnNzcIm/eXtjc2eMwemQ/ycmCz+dhQL/uuHBuH+cqxfLUs62BPdtWIuzCYazxmoNBTj2KXLy2XZtm6O8gf6qpWCzGw4inZLhMo0mPUuju/Uj4bNrH2eGgLRCgfbvmWDhvIg7vW4ebV48i4s5JPLgZiMvBB3BgtzdWebhiistQ2Le1Q6OGdThrGCXB3W08PJfOlDzmz5kA5xGOsK1bQ+FnEYlE2LM/QGaZ8+IgEokQrWB2hK6uEOtWzUNURBDuXg/A2xeXsH3zcqU6EYq6adOEsQPB47GwtjLHWGcn+G1chmcPz+Hpg7O4HHwAl4L2IyoiCKcCtsLmFwvy6RKvY+PwPKrke/iLE016lFJ8Nu5DxOMoMvxdinPJppJ26cotLPfawpn4v8ch/5Ocq9UUMDDQwy/VLRRehhdGNjswDIMO7VtKxQriVSqbomGD2mjUsI5SNcgTJ88rPfi6rKBJj1JKYlIyevdzQczLN8V24E8cN5gMlTlfs7Phf/QMnIZOl6xoXBLiEz5h9rxVcheL4PI1O5vzklso1JGaxlm7prVSCY2LSCTCrTuPsNLbT2F7ZFmjdtKLjoklQwrFK5jXKI9IJFZrxHmGGs8pIBKJlVrwk5SVKf/H96P7nPwFXXuPwa693Cu1KGv0yH5kqMwQiUS4cOkGhox0xfTZHiU2Pq6w44HB2LVH9X3rs3EfTnGsWViunHRbZXH0tp84GYIhI2dzJtuySu2kt2W7v0o/hNt3IxDzirvdQh6xWIwde/5WaQenp2cg9GI4GVaaWCzGpq0HVZqXmPU1+7ve80fw4WMSZs1diZ4OE3D9xn0kfU5RqeYnFouRkpKKqBevi719TN2ZCSKRCOnpGYh7/wGPn7zArr3H8Fv3UXAYOAUhoWGc09KKU3ZODuYuXIM/lv2pcOGDvLxvg4nHTVqEFav9EHgqlNxEopyxkdSioTdvP0Lw+TDExX3gvKkRKT09A48jozBp+lKMnrBA4RjOskrt+97q6goxZmQ/1Kn9C1kkIzc3F1u2HeYc+qAIj8eia6e26NalHfh82YbZwnJzc3E04H+4GnZHrYOgwLe2jxb4vU8n8ItYnqewPJEIp85cwP+Cr5JFUrQFArRs0YgMS+Tk5HBOBdLRFqBF85J7fnp6Bm7fjSDDRRLqaMPKsirq2dZEm1ZNUL9eTVhUM4ORkT4EWlrIyc3Fly9pSPiQiNexcXj2LAZ37kfi5au3ePcuHp/lrPhCLllPunLtdpEDdZs1qQd9fV1UNC0P0wrlYGioDwMDfehoC8Dn88Dn85Gbm4ucnFxkZGYh6XMKEj99xrv3H5D0OQVJScn4lJis0okO+TcJr8AxZzYtLV1mdWQuLMvCyrIqOrRvgd49OqBB/VooZ2yI7JxcvHnzHjduPcDpsxdx934kEj4kQiwWQyjU4ZzVEX7jvtTcWoZhUM28CiwtzNDCrgEaN6oLm18sUKWSKfT0dCEWi5GenoH3CZ/w9Gk0btx6iFt3HuFFTKzClXpat2wMLY7hS5FPXsjcWc60ggnnYrWKfteqUDvpURRF/YjUvrylKIr6EdGkR1GURqFJj6IojUKTHkVRGoUmPYqiNApNehRFaRSa9CiK0ig06VEUpVFo0qMoSqPQpEdRlEahSY+iKI1Ckx5FURqFJj2KojQKTXoURWkUmvQoitIoNOlRFKVRaNKjKEqj0KRHUZRGoUmPoiiNQpMeRVEahSY9iqI0yv8BWfFqrHaAccsAAAAASUVORK5CYII=";
             const LOGO_RATIO = 317 / 83;
 
@@ -1501,6 +1612,7 @@
                 pendencias: [],
                 customPendencias: [],
                 pendenciaYears: {},
+                pendenciaCompetencias: { das: [] },
                 yearEditors: {},
                 activeRecommendations: [],
                 recommendationSnapshots: {},
@@ -1562,17 +1674,11 @@
             let toastTimer;
             function toast(message) { const el = document.getElementById('toast'); el.textContent = message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 3200); }
 
-            /* ============ FOCO EM RE-RENDERS ============
-               Várias listas (pendências, recomendações, serviços) são redesenhadas via innerHTML
-               a cada interação. Sem isso, o elemento focado é destruído e o foco do teclado
-               "some" a cada clique, o que atrapalha muito quem navega sem mouse ou usa leitor de tela.
-               Este helper guarda uma referência estável (data-id / data-rec-id / data-service / etc.)
-               do elemento focado antes do render e tenta refocar o elemento equivalente depois. */
             function preserveFocusAcrossRender(container, renderFn) {
                 const active = document.activeElement;
                 let anchorId = null, selectionStart = null, selectionEnd = null;
                 if (active && container.contains(active)) {
-                    anchorId = active.dataset.id || active.dataset.recId || active.dataset.service || active.dataset.yearToggle || active.dataset.yearInput || null;
+                    anchorId = active.dataset.id || active.dataset.recId || active.dataset.service || active.dataset.yearToggle || active.dataset.yearInput || active.dataset.competenciaYearInput || active.dataset.monthInput || null;
                     if ('selectionStart' in active) { selectionStart = active.selectionStart; selectionEnd = active.selectionEnd; }
                 }
                 renderFn();
@@ -1582,7 +1688,9 @@
                     `[data-rec-id="${anchorId}"]`,
                     `[data-service="${anchorId}"]`,
                     `[data-year-toggle="${anchorId}"]`,
-                    `[data-year-input="${anchorId}"]`
+                    `[data-year-input="${anchorId}"]`,
+                    `[data-competencia-year-input="${anchorId}"]`,
+                    `[data-month-input="${anchorId}"]`
                 ];
                 for (const selector of candidates) {
                     const next = container.querySelector(selector);
@@ -1596,10 +1704,9 @@
 
             /* ============ ELEMENTS ============ */
             const els = {
-                nome: document.getElementById('nome'), cpf: document.getElementById('cpf'), cnpj: document.getElementById('cnpj'), razaoSocial: document.getElementById('razaoSocial'), cidade: document.getElementById('cidade'), uf: document.getElementById('uf'), data: document.getElementById('dataConsulta'), recomendacoes: document.getElementById('recomendacoes'), observacoes: document.getElementById('observacoes'), statusPill: document.getElementById('statusPill'), situacaoOptions: document.getElementById('situacaoOptions'), pendenciasList: document.getElementById('pendenciasList'), novaPendenciaInput: document.getElementById('novaPendenciaInput'), textLib: document.getElementById('textLib'), servicosList: document.getElementById('servicosList'), historyList: document.getElementById('historyList'), templateSelect: document.getElementById('templateSelect'), pendenciasCount: document.getElementById('pendenciasCount'), recomendacoesCount: document.getElementById('recomendacoesCount'), servicesCount: document.getElementById('servicesCount')
+                nome: document.getElementById('nome'), cnpj: document.getElementById('cnpj'), razaoSocial: document.getElementById('razaoSocial'), data: document.getElementById('dataConsulta'), recomendacoes: document.getElementById('recomendacoes'), observacoes: document.getElementById('observacoes'), statusPill: document.getElementById('statusPill'), situacaoOptions: document.getElementById('situacaoOptions'), pendenciasList: document.getElementById('pendenciasList'), novaPendenciaInput: document.getElementById('novaPendenciaInput'), textLib: document.getElementById('textLib'), servicosList: document.getElementById('servicosList'), historyList: document.getElementById('historyList'), templateSelect: document.getElementById('templateSelect'), pendenciasCount: document.getElementById('pendenciasCount'), recomendacoesCount: document.getElementById('recomendacoesCount'), servicesCount: document.getElementById('servicesCount')
             };
             els.data.value = todayISO();
-            els.cpf.addEventListener('input', event => event.target.value = maskCPF(event.target.value));
             els.cnpj.addEventListener('input', event => { event.target.value = maskCNPJ(event.target.value); clearFieldError('cnpj'); syncAutomaticRazaoSocial(); });
             els.nome.addEventListener('input', () => { clearFieldError('nome'); syncAutomaticRazaoSocial(); });
             els.razaoSocial.addEventListener('input', () => setRazaoSocialAutoState(false));
@@ -1631,13 +1738,36 @@
 
             /* ============ RECOMENDAÇÕES DINÂMICAS ============ */
             function getYears(id) { return [...(state.pendenciaYears[id] || [])].map(Number).filter(Number.isFinite).sort((a, b) => a - b); }
+            function normalizeCompetencia(value) {
+                const normalized = String(value || '').trim();
+                return /^\d{4}-(0[1-9]|1[0-2])$/.test(normalized) ? normalized : '';
+            }
+            function getDasCompetencias() {
+                const source = state.pendenciaCompetencias && Array.isArray(state.pendenciaCompetencias.das) ? state.pendenciaCompetencias.das : [];
+                return [...new Set(source.map(normalizeCompetencia).filter(Boolean))].sort();
+            }
+            function formatCompetencia(value, { capitalize = false, long = false } = {}) {
+                const normalized = normalizeCompetencia(value);
+                if (!normalized) return '';
+                const [year, month] = normalized.split('-');
+                let label = long ? `${MONTH_NAMES[Number(month) - 1]} de ${year}` : `${MONTH_NAMES[Number(month) - 1]}/${year}`;
+                if (capitalize) label = label.charAt(0).toLocaleUpperCase('pt-BR') + label.slice(1);
+                return label;
+            }
             function getRecommendationText(id) {
                 const years = getYears(id);
                 const yearList = formatList(years.map(String));
+                const dasCompetencias = getDasCompetencias();
+                const competenciaList = formatList(dasCompetencias.map(value => formatCompetencia(value, { long: true })));
                 switch (id) {
                     case 'regular': return TXT.regular;
                     case 'das': {
-                        const first = !years.length ? 'Foram identificadas guias DAS em atraso.' : years.length === 1 ? `Foram identificadas guias DAS em atraso referentes ao ano de ${yearList}.` : `Foram identificadas guias DAS em atraso referentes aos anos de ${yearList}.`;
+                        const statements = [];
+                        if (years.length === 1) statements.push(`Foram identificadas guias DAS em atraso referentes ao ano de ${yearList}.`);
+                        else if (years.length > 1) statements.push(`Foram identificadas guias DAS em atraso referentes aos anos de ${yearList}.`);
+                        if (dasCompetencias.length === 1) statements.push(`${statements.length ? 'Também foi identificada' : 'Foi identificada'} guia DAS em atraso referente ao mês de ${competenciaList}.`);
+                        else if (dasCompetencias.length > 1) statements.push(`${statements.length ? 'Também foram identificadas' : 'Foram identificadas'} guias DAS em atraso referentes aos meses de ${competenciaList}.`);
+                        const first = statements.length ? statements.join(' ') : 'Foram identificadas guias DAS em atraso.';
                         return `${first}\n\nA regularização evita juros, multas e possíveis restrições ao CNPJ.`;
                     }
                     case 'dasn': {
@@ -1651,6 +1781,10 @@
                     case 'parcelamento': {
                         const first = !years.length ? 'Foi identificada a necessidade de parcelamento de débitos em aberto.' : years.length === 1 ? `Foi identificada a necessidade de parcelamento de débitos referentes ao ano de ${yearList}.` : `Foi identificada a necessidade de parcelamento de débitos referentes aos anos de ${yearList}.`;
                         return `${first}\n\nO parcelamento permite regularizar pendências antigas de forma gradual, conforme as condições disponíveis.`;
+                    }
+                    case 'divida_ativa': {
+                        const first = !years.length ? 'Foi identificada inscrição de débitos em Dívida Ativa.' : years.length === 1 ? `Foi identificada inscrição de débitos em Dívida Ativa referente ao ano de ${yearList}.` : `Foram identificadas inscrições de débitos em Dívida Ativa referentes aos anos de ${yearList}.`;
+                        return `${first}\n\nRecomenda-se consultar o órgão responsável pela inscrição, verificar os valores atualizados e avaliar as opções disponíveis para pagamento, negociação ou parcelamento.`;
                     }
                     case 'alteracao': return TXT.alteracao;
                     case 'preventiva': return TXT.preventiva;
@@ -1769,10 +1903,52 @@
             let recommendationSyncTimer;
             els.recomendacoes.addEventListener('input', () => { clearTimeout(recommendationSyncTimer); recommendationSyncTimer = setTimeout(syncRecommendationsFromTextarea, 180); });
 
-            /* ============ PENDÊNCIAS E ANOS ============ */
+            /* ============ PENDÊNCIAS, ANOS E COMPETÊNCIAS ============ */
             function getPendingDefinition(id) { return PENDENCIAS.find(item => item.id === id); }
             function renderYearTags(id) {
+                if (id === 'das') {
+                    const yearTags = getYears('das').map(year => `<span class="year-tag">Ano ${year}<button type="button" class="year-remove" data-year-remove="das" data-year="${year}" aria-label="Remover o ano ${year}">×</button></span>`);
+                    const competenciaTags = getDasCompetencias().map(value => {
+                        const label = formatCompetencia(value, { capitalize: true });
+                        return `<span class="year-tag">${escapeHtml(label)}<button type="button" class="year-remove" data-competencia-remove="das" data-competencia="${value}" aria-label="Remover a competência ${escapeHtml(label)}">×</button></span>`;
+                    });
+                    return [...yearTags, ...competenciaTags].join('');
+                }
                 return getYears(id).map(year => `<span class="year-tag">${year}<button type="button" class="year-remove" data-year-remove="${id}" data-year="${year}" aria-label="Remover o ano ${year}">×</button></span>`).join('');
+            }
+            function renderMonthOptions() {
+                return MONTH_NAMES.map((month, index) => `<option value="${index + 1}">${month.charAt(0).toLocaleUpperCase('pt-BR') + month.slice(1)}</option>`).join('');
+            }
+            function renderPendenciaDetails(item, editorOpen) {
+                if (!item.allowYears) return '';
+                const tags = renderYearTags(item.id);
+                if (item.id === 'das') {
+                    if (!editorOpen) {
+                        return `<div class="year-panel"><div class="year-tags">${tags}</div><div class="year-help">Você pode informar anos completos e/ou competências específicas de mês e ano.</div></div>`;
+                    }
+                    const yearTags = getYears('das').map(year => `<span class="year-tag">Ano ${year}<button type="button" class="year-remove" data-year-remove="das" data-year="${year}" aria-label="Remover o ano ${year}">×</button></span>`).join('');
+                    const competenciaTags = getDasCompetencias().map(value => {
+                        const label = formatCompetencia(value, { capitalize: true });
+                        return `<span class="year-tag">${escapeHtml(label)}<button type="button" class="year-remove" data-competencia-remove="das" data-competencia="${value}" aria-label="Remover a competência ${escapeHtml(label)}">×</button></span>`;
+                    }).join('');
+                    return `<div class="year-panel"><div class="das-detail-grid">
+                        <div class="das-detail-box">
+                            <strong class="das-detail-title">Ano completo</strong>
+                            <p class="das-detail-copy">Use quando o atraso deve ser informado pelo ano, sem detalhar os meses.</p>
+                            <div class="year-tags">${yearTags}</div>
+                            <div class="year-form"><label class="sr-only" for="year-${item.id}">Ano completo das guias DAS em atraso</label><input id="year-${item.id}" class="year-input" data-year-input="${item.id}" type="number" min="2000" max="2100" inputmode="numeric" placeholder="Ex.: 2026"><button type="button" class="btn-year-add" data-year-add="${item.id}">Adicionar ano</button></div>
+                        </div>
+                        <div class="das-detail-box">
+                            <strong class="das-detail-title">Mês e ano específicos</strong>
+                            <p class="das-detail-copy">Use quando for necessário identificar a competência mensal exata.</p>
+                            <div class="year-tags">${competenciaTags}</div>
+                            <div class="year-form"><label class="sr-only" for="month-${item.id}">Mês da guia DAS em atraso</label><select id="month-${item.id}" class="month-input" data-month-input="${item.id}">${renderMonthOptions()}</select><label class="sr-only" for="competencia-year-${item.id}">Ano da competência da guia DAS</label><input id="competencia-year-${item.id}" class="year-input" data-competencia-year-input="${item.id}" type="number" min="2000" max="2100" inputmode="numeric" placeholder="Ex.: 2026"><button type="button" class="btn-year-add" data-competencia-add="${item.id}">Adicionar mês e ano</button></div>
+                        </div>
+                    </div><div class="year-help">Anos e competências repetidos serão ignorados.</div></div>`;
+                }
+                let editor = '';
+                if (editorOpen) editor = `<div class="year-form"><label class="sr-only" for="year-${item.id}">Ano da pendência ${escapeHtml(item.label)}</label><input id="year-${item.id}" class="year-input" data-year-input="${item.id}" type="number" min="2000" max="2100" inputmode="numeric" placeholder="Ex.: 2026"><button type="button" class="btn-year-add" data-year-add="${item.id}">Adicionar ano</button></div>`;
+                return `<div class="year-panel"><div class="year-tags">${tags}</div>${editor}<div class="year-help">Você pode incluir mais de um ano. Anos repetidos serão ignorados.</div></div>`;
             }
             function renderPendencias() {
                 preserveFocusAcrossRender(els.pendenciasList, () => {
@@ -1780,6 +1956,7 @@
                     PENDENCIAS.forEach(item => {
                         const selected = state.pendencias.includes(item.id);
                         const editorOpen = Boolean(state.yearEditors[item.id]);
+                        const toggleLabel = item.id === 'das' ? 'Informar períodos' : 'Informar ano';
                         html += `<div class="pendencia-item${selected ? ' selected' : ''}" data-pendencia-card="${item.id}">
         <div class="pendencia-main">
           <label class="pendencia-select">
@@ -1787,10 +1964,10 @@
             <span class="pendencia-copy"><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.description)}</small></span>
           </label>
           <div class="pendencia-actions">
-            ${selected && item.allowYears ? `<button type="button" class="btn-year-toggle" data-year-toggle="${item.id}" aria-expanded="${editorOpen}">${editorOpen ? 'Fechar' : 'Informar ano'}</button>` : ''}
+            ${selected && item.allowYears ? `<button type="button" class="btn-year-toggle" data-year-toggle="${item.id}" aria-expanded="${editorOpen}">${editorOpen ? 'Fechar' : toggleLabel}</button>` : ''}
           </div>
         </div>
-        ${selected && item.allowYears ? `<div class="year-panel"><div class="year-tags">${renderYearTags(item.id)}</div>${editorOpen ? `<div class="year-form"><label class="sr-only" for="year-${item.id}">Ano da pendência ${escapeHtml(item.label)}</label><input id="year-${item.id}" class="year-input" data-year-input="${item.id}" type="number" min="2000" max="2100" inputmode="numeric" placeholder="Ex.: 2026"><button type="button" class="btn-year-add" data-year-add="${item.id}">Adicionar ano</button></div><div class="year-help">Você pode incluir mais de um ano. Anos repetidos serão ignorados.</div>` : ''}</div>` : ''}
+        ${selected && item.allowYears ? renderPendenciaDetails(item, editorOpen) : ''}
       </div>`;
                     });
                     state.customPendencias.forEach(item => {
@@ -1801,16 +1978,36 @@
                 });
                 const count = state.pendencias.length;
                 els.pendenciasCount.textContent = `${count} ${count === 1 ? 'selecionada' : 'selecionadas'}`;
-                Object.keys(state.yearEditors).forEach(id => { if (state.yearEditors[id]) setTimeout(() => document.querySelector(`[data-year-input="${id}"]`)?.focus(), 0); });
+                const openEditorId = Object.keys(state.yearEditors).find(id => state.yearEditors[id]);
+                if (openEditorId) {
+                    setTimeout(() => document.querySelector(`[data-year-input="${openEditorId}"]`)?.focus(), 0);
+                }
             }
             function addYear(id) {
                 const input = document.querySelector(`[data-year-input="${id}"]`); if (!input) return;
                 const year = Number(input.value);
                 if (!Number.isInteger(year) || year < 2000 || year > 2100) { toast('Informe um ano válido entre 2000 e 2100.'); input.focus(); return; }
                 const years = getYears(id);
-                if (!years.includes(year)) years.push(year);
+                if (years.includes(year)) { toast(`O ano ${year} já foi informado.`); input.focus(); return; }
+                years.push(year);
                 state.pendenciaYears[id] = years.sort((a, b) => a - b);
                 renderPendencias(); refreshRecommendation(id); toast(`Ano ${year} adicionado.`);
+            }
+            function addDasCompetencia() {
+                const monthInput = document.querySelector('[data-month-input="das"]');
+                const yearInput = document.querySelector('[data-competencia-year-input="das"]');
+                if (!monthInput || !yearInput) return;
+                const month = Number(monthInput.value);
+                const year = Number(yearInput.value);
+                if (!Number.isInteger(month) || month < 1 || month > 12) { toast('Selecione um mês válido.'); monthInput.focus(); return; }
+                if (!Number.isInteger(year) || year < 2000 || year > 2100) { toast('Informe um ano válido entre 2000 e 2100.'); yearInput.focus(); return; }
+                const competencia = `${year}-${String(month).padStart(2, '0')}`;
+                const competencias = getDasCompetencias();
+                const label = formatCompetencia(competencia, { capitalize: true });
+                if (competencias.includes(competencia)) { toast(`A competência ${label} já foi informada.`); monthInput.focus(); return; }
+                competencias.push(competencia);
+                state.pendenciaCompetencias = { ...(state.pendenciaCompetencias || {}), das: competencias.sort() };
+                renderPendencias(); refreshRecommendation('das'); toast(`Competência ${label} adicionada.`);
             }
             els.pendenciasList.addEventListener('change', event => {
                 const checkbox = event.target.closest('.pendencia-check'); if (!checkbox) return;
@@ -1830,8 +2027,16 @@
             els.pendenciasList.addEventListener('click', event => {
                 const toggle = event.target.closest('[data-year-toggle]');
                 if (toggle) { const id = toggle.dataset.yearToggle; state.yearEditors[id] = !state.yearEditors[id]; renderPendencias(); return; }
+                const addCompetencia = event.target.closest('[data-competencia-add]');
+                if (addCompetencia) { addDasCompetencia(); return; }
                 const add = event.target.closest('[data-year-add]');
                 if (add) { addYear(add.dataset.yearAdd); return; }
+                const removeCompetencia = event.target.closest('[data-competencia-remove]');
+                if (removeCompetencia) {
+                    const competencia = normalizeCompetencia(removeCompetencia.dataset.competencia);
+                    state.pendenciaCompetencias = { ...(state.pendenciaCompetencias || {}), das: getDasCompetencias().filter(item => item !== competencia) };
+                    renderPendencias(); refreshRecommendation('das'); toast(`Competência ${formatCompetencia(competencia, { capitalize: true })} removida.`); return;
+                }
                 const removeYear = event.target.closest('[data-year-remove]');
                 if (removeYear) {
                     const id = removeYear.dataset.yearRemove; const year = Number(removeYear.dataset.year);
@@ -1847,7 +2052,11 @@
                     renderPendencias(); renderTextLib(); renderServicos(); toast('Pendência personalizada removida.');
                 }
             });
-            els.pendenciasList.addEventListener('keydown', event => { if (event.key === 'Enter' && event.target.matches('[data-year-input]')) { event.preventDefault(); addYear(event.target.dataset.yearInput); } });
+            els.pendenciasList.addEventListener('keydown', event => {
+                if (event.key !== 'Enter') return;
+                if (event.target.matches('[data-competencia-year-input]')) { event.preventDefault(); addDasCompetencia(); return; }
+                if (event.target.matches('[data-year-input]')) { event.preventDefault(); addYear(event.target.dataset.yearInput); }
+            });
             document.getElementById('btnAddPendencia').addEventListener('click', () => {
                 const label = els.novaPendenciaInput.value.trim();
                 if (!label) { els.novaPendenciaInput.focus(); return; }
@@ -1858,30 +2067,39 @@
             });
             els.novaPendenciaInput.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); document.getElementById('btnAddPendencia').click(); } });
 
-            /* ============ SERVIÇOS ============ */
-            function getSuggestedServices() {
-                const services = new Set();
-                state.pendencias.forEach(id => { const definition = getPendingDefinition(id); if (definition) definition.servicos.forEach(service => services.add(service)); else services.add('Plano Gestão MEI'); });
-                if (!state.pendencias.length) services.add('Plano Gestão MEI');
-                state.selectedServices.forEach(service => services.add(service));
-                return [...services];
+            /* ============ SERVIÇOS RECOMENDADOS ============ */
+            function getServiceDefinition(value) {
+                const normalized = String(value || '');
+                return SERVICE_CATALOG.find(service => service.id === normalized || service.label === normalized || (service.aliases || []).includes(normalized));
+            }
+            function normalizeSelectedServices(values) {
+                if (!Array.isArray(values)) return [];
+                return [...new Set(values.map(value => getServiceDefinition(value)?.id).filter(Boolean))];
+            }
+            function getSelectedServiceLabels() {
+                return normalizeSelectedServices(state.selectedServices).map(id => {
+                    const service = getServiceDefinition(id);
+                    return service ? (service.pdfLabel || service.label) : id;
+                });
             }
             function renderServicos() {
-                const services = getSuggestedServices();
-                els.servicesCount.textContent = `${services.length} ${services.length === 1 ? 'sugestão' : 'sugestões'}`;
-                if (!services.length) { els.servicosList.innerHTML = '<p class="servicos-empty">Nenhuma sugestão no momento.</p>'; return; }
+                state.selectedServices = normalizeSelectedServices(state.selectedServices);
+                const selectedCount = state.selectedServices.length;
+                els.servicesCount.textContent = `${selectedCount} ${selectedCount === 1 ? 'selecionado' : 'selecionados'}`;
                 preserveFocusAcrossRender(els.servicosList, () => {
-                    els.servicosList.innerHTML = services.map(service => {
-                        const selected = state.selectedServices.includes(service); const isPlan = service === 'Plano Gestão MEI';
-                        return `<label class="servico-item${selected ? ' active' : ''}${isPlan ? ' plan' : ''}"><input type="checkbox" data-service="${escapeHtml(service)}" ${selected ? 'checked' : ''}><span class="servico-copy"><strong>${escapeHtml(service)}</strong><small>${escapeHtml(SERVICE_INFO[service] || 'Serviço sugerido para este diagnóstico.')}</small></span><span class="service-badge">${isPlan ? 'Plano' : 'Serviço'}</span></label>`;
+                    els.servicosList.innerHTML = SERVICE_CATALOG.map(service => {
+                        const selected = state.selectedServices.includes(service.id);
+                        const classes = `servico-item${selected ? ' active' : ''}${service.featured ? ' featured' : ''}`;
+                        return `<label class="${classes}"><input type="checkbox" data-service="${service.id}" ${selected ? 'checked' : ''}><span class="servico-copy"><strong>${escapeHtml(service.label)}</strong><small>${escapeHtml(service.description)}</small></span><span class="service-badge">${escapeHtml(service.badge || 'Serviço')}</span></label>`;
                     }).join('');
                 });
             }
             els.servicosList.addEventListener('change', event => {
                 const input = event.target.closest('[data-service]'); if (!input) return;
-                const service = input.dataset.service;
-                if (input.checked && !state.selectedServices.includes(service)) state.selectedServices.push(service);
-                if (!input.checked) state.selectedServices = state.selectedServices.filter(item => item !== service);
+                const serviceId = input.dataset.service;
+                if (!getServiceDefinition(serviceId)) return;
+                if (input.checked && !state.selectedServices.includes(serviceId)) state.selectedServices.push(serviceId);
+                if (!input.checked) state.selectedServices = state.selectedServices.filter(item => item !== serviceId);
                 renderServicos();
             });
 
@@ -1892,18 +2110,18 @@
             }
             els.templateSelect.addEventListener('change', () => {
                 const key = els.templateSelect.value; if (!key) return;
-                const hasData = els.nome.value || els.cnpj.value || els.recomendacoes.value || state.pendencias.length;
+                const hasData = els.nome.value || els.cnpj.value || els.recomendacoes.value || els.observacoes.value || state.pendencias.length || state.selectedServices.length;
                 if (hasData && !confirm('Aplicar este modelo irá substituir situação, pendências e recomendações. Deseja continuar?')) { els.templateSelect.value = ''; return; }
                 const template = TEMPLATES[key];
-                state.situacao = template.situacao; state.pendencias = [...template.pendencias]; state.pendenciaYears = {}; state.yearEditors = {}; state.selectedServices = [];
+                state.situacao = template.situacao; state.pendencias = [...template.pendencias]; state.pendenciaYears = {}; state.pendenciaCompetencias = { das: [] }; state.yearEditors = {}; state.selectedServices = [];
                 els.observacoes.value = template.observacoes; applyRecommendationSet(template.recommendationIds);
                 enforceDiagnosticConsistency({ render: false, updateStatus: false });
                 updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); els.templateSelect.value = ''; toast('Modelo aplicado. Ajuste os detalhes se necessário.');
             });
             document.getElementById('btnReset').addEventListener('click', () => {
                 if (!confirm('Iniciar um novo relatório? Os campos preenchidos serão apagados.')) return;
-                els.nome.value = ''; els.cpf.value = ''; els.cnpj.value = ''; els.razaoSocial.value = ''; els.cidade.value = ''; els.uf.value = ''; els.data.value = todayISO(); els.recomendacoes.value = ''; els.observacoes.value = '';
-                state.situacao = 'regular'; state.pendencias = []; state.customPendencias = []; state.pendenciaYears = {}; state.yearEditors = {}; state.activeRecommendations = []; state.recommendationSnapshots = {}; state.selectedServices = []; setRazaoSocialAutoState(true);
+                els.nome.value = ''; els.cnpj.value = ''; els.razaoSocial.value = ''; els.data.value = todayISO(); els.recomendacoes.value = ''; els.observacoes.value = '';
+                state.situacao = 'regular'; state.pendencias = []; state.customPendencias = []; state.pendenciaYears = {}; state.pendenciaCompetencias = { das: [] }; state.yearEditors = {}; state.activeRecommendations = []; state.recommendationSnapshots = {}; state.selectedServices = []; setRazaoSocialAutoState(true);
                 clearFieldError('nome'); clearFieldError('cnpj'); updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); toast('Novo relatório iniciado.');
             });
 
@@ -1922,44 +2140,277 @@
             function buildPendenciaLabel(id) {
                 const definition = getPendingDefinition(id);
                 if (!definition) { const custom = state.customPendencias.find(item => item.id === id); return custom ? custom.label : id; }
+                if (id === 'das') {
+                    const years = getYears('das');
+                    const competencias = getDasCompetencias();
+                    const details = [];
+                    if (years.length) details.push(`${years.length === 1 ? 'ano' : 'anos'} de ${formatList(years.map(String))}`);
+                    if (competencias.length) details.push(`${competencias.length === 1 ? 'mês' : 'meses'} de ${formatList(competencias.map(value => formatCompetencia(value, { long: true })))}`);
+                    return details.length ? `Guias DAS em atraso — ${details.join('; ')}` : definition.label;
+                }
                 const years = getYears(id); if (!years.length) return definition.label;
                 const joined = formatList(years.map(String));
-                if (id === 'das') return `Guias DAS em atraso — referentes ${years.length === 1 ? 'ao ano' : 'aos anos'} de ${joined}`;
                 if (id === 'dasn') return years.length === 1 ? `DASN não entregue — referente ao ano de ${joined}` : `Declarações DASN não entregues — referentes aos anos de ${joined}`;
                 if (id === 'multas') return `Multas em aberto — referentes ${years.length === 1 ? 'ao ano' : 'aos anos'} de ${joined}`;
                 if (id === 'parcelamento') return `${definition.label} — débitos referentes ${years.length === 1 ? 'ao ano' : 'aos anos'} de ${joined}`;
+                if (id === 'divida_ativa') return `Dívida Ativa — débitos inscritos referentes ${years.length === 1 ? 'ao ano' : 'aos anos'} de ${joined}`;
                 return `${definition.label} — ${years.length === 1 ? 'ano informado' : 'anos informados'}: ${joined}`;
             }
             function collectData() {
                 enforceDiagnosticConsistency({ render: true, updateStatus: true });
                 if (!els.razaoSocial.value.trim()) { setRazaoSocialAutoState(true); syncAutomaticRazaoSocial(); }
-                return { nome: els.nome.value.trim(), cpf: els.cpf.value.trim(), cnpj: els.cnpj.value.trim(), razaoSocial: els.razaoSocial.value.trim(), cidade: els.cidade.value.trim(), uf: els.uf.value, dataISO: els.data.value || todayISO(), dataFormatted: formatDateBR(els.data.value || todayISO()), situacao: state.situacao, pendenciasLabels: state.pendencias.map(buildPendenciaLabel), recomendacoes: normalizeTextarea(els.recomendacoes.value), observacoes: els.observacoes.value };
+                return { nome: els.nome.value.trim(), cnpj: els.cnpj.value.trim(), razaoSocial: els.razaoSocial.value.trim(), dataISO: els.data.value || todayISO(), dataFormatted: formatDateBR(els.data.value || todayISO()), situacao: state.situacao, pendenciasLabels: state.pendencias.map(buildPendenciaLabel), servicesLabels: getSelectedServiceLabels(), recomendacoes: normalizeTextarea(els.recomendacoes.value), observacoes: els.observacoes.value };
             }
             function sanitizeFilename(value) { return (value || 'cliente').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'cliente'; }
-            function buildPDF(data) {
+            function buildPDF(data, outputMode = 'save') {
                 if (!window.jspdf || !window.jspdf.jsPDF) throw new Error('Biblioteca jsPDF indisponível.');
-                const { jsPDF } = window.jspdf; const doc = new jsPDF({ unit: 'mm', format: 'a4' }); const pageW = 210, marginX = 16; let y = 0;
-                function sectionTitle(title, position) { doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(20, 22, 43); doc.text(title, marginX, position); doc.setDrawColor(225, 228, 238); doc.setLineWidth(.3); doc.line(marginX, position + 2.5, pageW - marginX, position + 2.5); return position + 9; }
-                function checkBreak(position, needed) { if (position + needed > 274) { doc.addPage(); return 24; } return position; }
-                function writeWrapped(text, x, width, lineHeight = 5.6, bullet = false) { const lines = doc.splitTextToSize(text, width); lines.forEach((line, index) => { y = checkBreak(y, 7); doc.text(`${bullet && index === 0 ? '•  ' : bullet ? '   ' : ''}${line}`, x, y); y += lineHeight; }); }
-                doc.setFillColor(14, 22, 51); doc.rect(0, 0, pageW, 32, 'F');
-                const logoH = 9, logoW = logoH * LOGO_RATIO; doc.addImage(LOGO_B64, 'PNG', marginX, 7, logoW, logoH);
-                doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(215, 242, 76); doc.text('Diagnóstico Técnico de CNPJ', marginX, 24.5);
-                doc.setTextColor(255, 255, 255); doc.setFontSize(9); doc.text(`Data: ${data.dataFormatted}`, pageW - marginX, 13, { align: 'right' }); doc.text(`Ref.: ${data.cnpj || '-'}`, pageW - marginX, 19, { align: 'right' });
-                y = 44; y = sectionTitle('Dados do Cliente', y); doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-                [['Nome', data.nome], ['CPF', data.cpf], ['CNPJ', data.cnpj], ['Razão Social', data.razaoSocial], ['Cidade/UF', [data.cidade, data.uf].filter(Boolean).join(' - ')]].forEach(([label, value]) => { if (!value) return; doc.setTextColor(91, 97, 120); doc.text(`${label}:`, marginX, y); doc.setTextColor(20, 22, 43); const lines = doc.splitTextToSize(String(value), pageW - marginX * 2 - 34); doc.text(lines, marginX + 34, y); y += Math.max(6.2, lines.length * 5.3); });
-                y += 5; const color = STATUS_COLORS_PDF[data.situacao] || [91, 97, 120]; doc.setFillColor(...color); doc.roundedRect(marginX, y - 5.5, 52, 8.5, 2, 2, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text(`Situação: ${STATUS_LABELS[data.situacao]}`, marginX + 4, y); y += 13;
-                y = sectionTitle('Pendências Identificadas', y); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(20, 22, 43);
-                if (!data.pendenciasLabels.length) { doc.text('Nenhuma pendência identificada no momento da consulta.', marginX, y); y += 6.5; }
-                else data.pendenciasLabels.forEach(label => writeWrapped(label, marginX, pageW - marginX * 2 - 5, 5.5, true));
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+                const pageW = 210;
+                const marginX = 16;
+                const contentBottom = 270;
+                let y = 0;
+
+                function sectionTitle(title, position) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(11);
+                    doc.setTextColor(20, 22, 43);
+                    doc.text(title, marginX, position);
+                    doc.setDrawColor(225, 228, 238);
+                    doc.setLineWidth(.3);
+                    doc.line(marginX, position + 2.5, pageW - marginX, position + 2.5);
+                    return position + 9;
+                }
+
+                function checkBreak(position, needed) {
+                    if (position + needed > contentBottom) {
+                        doc.addPage();
+                        return 24;
+                    }
+                    return position;
+                }
+
+                function writePendenciaCards(labels, situacao) {
+                    const columns = 3;
+                    const gap = 4;
+                    const usableWidth = pageW - marginX * 2;
+                    const cardWidth = (usableWidth - gap * (columns - 1)) / columns;
+                    const paddingX = 4;
+                    const paddingY = 4;
+                    const lineHeight = 4.6;
+                    const palette = STATUS_CARD_COLORS_PDF[situacao] || STATUS_CARD_COLORS_PDF.pendencias;
+
+                    for (let index = 0; index < labels.length; index += columns) {
+                        const row = labels.slice(index, index + columns);
+                        const cards = row.map(label => {
+                            const lines = doc.splitTextToSize(String(label), cardWidth - paddingX * 2 - 3);
+                            return { label, lines, height: Math.max(17, paddingY * 2 + lines.length * lineHeight) };
+                        });
+                        const rowHeight = Math.max(...cards.map(card => card.height));
+                        y = checkBreak(y, rowHeight + 5);
+
+                        cards.forEach((card, columnIndex) => {
+                            const x = marginX + columnIndex * (cardWidth + gap);
+                            doc.setFillColor(...palette.background);
+                            doc.setDrawColor(...palette.border);
+                            doc.setLineWidth(.35);
+                            doc.roundedRect(x, y, cardWidth, rowHeight, 2.2, 2.2, 'FD');
+                            doc.setFillColor(...palette.border);
+                            doc.circle(x + paddingX + 1.2, y + paddingY + 2.2, 1.1, 'F');
+                            doc.setFont('helvetica', 'bold');
+                            doc.setFontSize(8.7);
+                            doc.setTextColor(...palette.text);
+                            doc.text(card.lines, x + paddingX + 4, y + paddingY + 3.3);
+                        });
+
+                        y += rowHeight + 5;
+                    }
+                }
+
+                function writeServiceChips(services) {
+                    const usableWidth = pageW - marginX * 2;
+                    const gapX = 3;
+                    const gapY = 3;
+                    const chipHeight = 8.5;
+                    let x = marginX;
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(8.5);
+                    services.forEach(service => {
+                        const label = String(service);
+                        const chipWidth = Math.min(usableWidth, Math.max(27, doc.getTextWidth(label) + 10));
+                        if (x + chipWidth > pageW - marginX + .1) {
+                            y += chipHeight + gapY;
+                            y = checkBreak(y, chipHeight + gapY);
+                            x = marginX;
+                        }
+                        doc.setFillColor(231, 235, 255);
+                        doc.setDrawColor(143, 160, 255);
+                        doc.setLineWidth(.35);
+                        doc.roundedRect(x, y, chipWidth, chipHeight, 4.2, 4.2, 'FD');
+                        doc.setTextColor(41, 72, 232);
+                        doc.text(label, x + chipWidth / 2, y + 5.5, { align: 'center' });
+                        x += chipWidth + gapX;
+                    });
+                    y += chipHeight + 5;
+                }
+
+                function drawPdfLinkButton({ x, top, width, label, url, fill, text }) {
+                    const height = 10;
+                    doc.setFillColor(...fill);
+                    doc.setDrawColor(...fill);
+                    doc.roundedRect(x, top, width, height, 2.4, 2.4, 'F');
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(9);
+                    doc.setTextColor(...text);
+                    doc.text(label, x + width / 2, top + 6.4, { align: 'center' });
+                    doc.link(x, top, width, height, { url });
+                }
+
+                doc.setFillColor(14, 22, 51);
+                doc.rect(0, 0, pageW, 30, 'F');
+                const logoH = 8.6, logoW = logoH * LOGO_RATIO;
+                doc.addImage(LOGO_B64, 'PNG', marginX, 6.2, logoW, logoH);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10.4);
+                doc.setTextColor(215, 242, 76);
+                doc.text('Diagnóstico Técnico de CNPJ', marginX, 23.2);
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9.8);
+                doc.text(`Data: ${data.dataFormatted}`, pageW - marginX, 11.8, { align: 'right' });
+                doc.text(`Ref.: ${data.cnpj || '-'}`, pageW - marginX, 18.3, { align: 'right' });
+
+                y = 42;
+                y = sectionTitle('Dados do Cliente', y);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                [['Nome', data.nome], ['CNPJ', data.cnpj], ['Razão Social', data.razaoSocial]].forEach(([label, value]) => {
+                    if (!value) return;
+                    doc.setTextColor(91, 97, 120);
+                    doc.text(`${label}:`, marginX, y);
+                    doc.setTextColor(20, 22, 43);
+                    const lines = doc.splitTextToSize(String(value), pageW - marginX * 2 - 34);
+                    doc.text(lines, marginX + 34, y);
+                    y += Math.max(6.2, lines.length * 5.3);
+                });
+
+                y += 5;
+                const color = STATUS_COLORS_PDF[data.situacao] || [91, 97, 120];
+                doc.setFillColor(...color);
+                doc.roundedRect(marginX, y - 5.5, 52, 8.5, 2, 2, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.text(`Situação: ${STATUS_LABELS[data.situacao]}`, marginX + 4, y);
+                y += 13;
+
+                y = checkBreak(y, 24);
+                y = sectionTitle('Pendências Identificadas', y);
+                if (!data.pendenciasLabels.length) {
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    doc.setTextColor(20, 22, 43);
+                    doc.text('Nenhuma pendência identificada no momento da consulta.', marginX, y);
+                    y += 10.5;
+                } else {
+                    writePendenciaCards(data.pendenciasLabels, data.situacao);
+                }
+
+                if (data.recomendacoes && data.recomendacoes.trim()) {
+                    y += 4;
+                    y = checkBreak(y, 24);
+                    y = sectionTitle('Recomendações', y);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    doc.setTextColor(20, 22, 43);
+                    const recommendationParagraphs = data.recomendacoes.trim().split(/\n\s*\n/).filter(Boolean);
+                    recommendationParagraphs.forEach((paragraph, paragraphIndex) => {
+                        const lines = doc.splitTextToSize(paragraph.replace(/\n+/g, ' '), pageW - marginX * 2);
+                        lines.forEach(line => {
+                            y = checkBreak(y, 6.5);
+                            doc.text(line, marginX, y);
+                            y += 5.2;
+                        });
+                        if (paragraphIndex < recommendationParagraphs.length - 1) y += 2.2;
+                    });
+                    y += 3;
+                }
+
+                if (data.observacoes && data.observacoes.trim()) {
+                    y = checkBreak(y, 20);
+                    y = sectionTitle('Observações do Especialista', y);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    doc.setTextColor(20, 22, 43);
+                    doc.splitTextToSize(data.observacoes.trim(), pageW - marginX * 2).forEach(line => {
+                        y = checkBreak(y, 7);
+                        doc.text(line, marginX, y);
+                        y += 5.6;
+                    });
+                    y += 3;
+                }
+
+                if (data.servicesLabels && data.servicesLabels.length) {
+                    y = checkBreak(y, 20);
+                    y = sectionTitle('Serviços recomendados', y);
+                    writeServiceChips(data.servicesLabels);
+                }
+
+                y = checkBreak(y, 50);
+                y += 3;
+                doc.setDrawColor(225, 228, 238);
+                doc.line(marginX, y, pageW - marginX, y);
+                y += 8;
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.setTextColor(61, 90, 254);
+                doc.text('Próximos passos sugeridos', marginX, y);
+                y += 6;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9.5);
+                doc.setTextColor(91, 97, 120);
+                doc.splitTextToSize('Caso deseje, nossa equipe pode auxiliar na regularização das pendências identificadas, no acompanhamento das obrigações do MEI e na gestão do seu CNPJ.', pageW - marginX * 2).forEach(line => {
+                    y = checkBreak(y, 7);
+                    doc.text(line, marginX, y);
+                    y += 5;
+                });
                 y += 4;
-                if (data.recomendacoes && data.recomendacoes.trim()) { y = checkBreak(y, 20); y = sectionTitle('Recomendações', y); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(20, 22, 43); doc.splitTextToSize(data.recomendacoes.trim(), pageW - marginX * 2).forEach(line => { y = checkBreak(y, 7); doc.text(line, marginX, y); y += 5.6; }); y += 3; }
-                if (data.observacoes && data.observacoes.trim()) { y = checkBreak(y, 20); y = sectionTitle('Observações do Especialista', y); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(20, 22, 43); doc.splitTextToSize(data.observacoes.trim(), pageW - marginX * 2).forEach(line => { y = checkBreak(y, 7); doc.text(line, marginX, y); y += 5.6; }); y += 3; }
-                y = checkBreak(y, 34); y += 3; doc.setDrawColor(225, 228, 238); doc.line(marginX, y, pageW - marginX, y); y += 8; doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(61, 90, 254); doc.text('Próximos passos sugeridos', marginX, y); y += 6; doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(91, 97, 120);
-                doc.splitTextToSize('Caso deseje, nossa equipe pode auxiliar na regularização das pendências identificadas, no acompanhamento das obrigações do MEI e na gestão do seu CNPJ.', pageW - marginX * 2).forEach(line => { y = checkBreak(y, 7); doc.text(line, marginX, y); y += 5; });
+                y = checkBreak(y, 14);
+                const actionGap = 5;
+                const actionWidth = (pageW - marginX * 2 - actionGap) / 2;
+                drawPdfLinkButton({ x: marginX, top: y, width: actionWidth, label: 'Falar com o especialista', url: PDF_LINKS.specialist, fill: [215, 242, 76], text: [14, 22, 51] });
+                drawPdfLinkButton({ x: marginX + actionWidth + actionGap, top: y, width: actionWidth, label: 'Conhecer Planos', url: PDF_LINKS.plans, fill: [14, 22, 51], text: [255, 255, 255] });
+                y += 14;
+
                 const pageCount = doc.internal.getNumberOfPages();
-                for (let page = 1; page <= pageCount; page++) { doc.setPage(page); doc.setDrawColor(225, 228, 238); doc.line(marginX, 281, pageW - marginX, 281); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.3); doc.setTextColor(140, 144, 163); doc.text('Portal do MEI Brasil é uma plataforma privada de assessoria, sem vínculo com órgãos governamentais. CNPJ 48.716.520/0001-21', pageW / 2, 286, { align: 'center' }); doc.text(`Página ${page} de ${pageCount}`, pageW - marginX, 286, { align: 'right' }); }
-                doc.save(`Diagnostico_${sanitizeFilename(data.nome)}_${data.dataISO}.pdf`);
+                for (let page = 1; page <= pageCount; page++) {
+                    doc.setPage(page);
+                    doc.setFillColor(14, 22, 51);
+                    doc.rect(0, 274, pageW, 23, 'F');
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(7.1);
+                    doc.setTextColor(220, 225, 247);
+                    doc.text('Portal do MEI Brasil é uma plataforma privada de assessoria, sem vínculo com órgãos governamentais. CNPJ 48.716.520/0001-21', pageW / 2, 280.5, { align: 'center' });
+                    const termsW = 27;
+                    const termsH = 5.6;
+                    const termsX = (pageW - termsW) / 2;
+                    const termsY = 283.4;
+                    doc.setFillColor(32, 43, 97);
+                    doc.roundedRect(termsX, termsY, termsW, termsH, 2.4, 2.4, 'F');
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(7.2);
+                    doc.setTextColor(215, 242, 76);
+                    doc.text('Termos de Uso', pageW / 2, termsY + 3.8, { align: 'center' });
+                    doc.link(termsX, termsY, termsW, termsH, { url: PDF_LINKS.terms });
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(7.3);
+                    doc.setTextColor(220, 225, 247);
+                    doc.text(`Página ${page} de ${pageCount}`, pageW / 2, 293, { align: 'center' });
+                }
+
+                const filename = `Diagnostico_${sanitizeFilename(data.nome)}_${data.dataISO}.pdf`;
+                if (outputMode === 'preview') return doc.output('bloburl');
+                doc.save(filename);
+                return null;
             }
 
             /* ============ HISTORY ============ */
@@ -1971,36 +2422,69 @@
             els.historyList.addEventListener('click', event => { const button = event.target.closest('[data-action]'); if (!button) return; if (button.dataset.action === 'dup') duplicateReport(button.dataset.id); if (button.dataset.action === 'del') deleteReport(button.dataset.id); });
             function duplicateReport(id) {
                 const report = state.history.find(item => String(item.id) === String(id)); if (!report) return;
-                els.nome.value = report.nome || ''; els.cpf.value = report.cpf || ''; els.cnpj.value = report.cnpj || ''; els.razaoSocial.value = report.razaoSocial || ''; els.cidade.value = report.cidade || ''; els.uf.value = report.uf || ''; els.data.value = todayISO(); els.recomendacoes.value = report.recomendacoes || ''; els.observacoes.value = report.observacoes || '';
+                els.nome.value = report.nome || ''; els.cnpj.value = report.cnpj || ''; els.razaoSocial.value = report.razaoSocial || ''; els.data.value = todayISO(); els.recomendacoes.value = report.recomendacoes || ''; els.observacoes.value = report.observacoes || '';
                 const automaticRazao = buildAutomaticRazaoSocial(); setRazaoSocialAutoState(!report.razaoSocial || report.razaoSocial === automaticRazao); if (!report.razaoSocial) syncAutomaticRazaoSocial();
-                state.situacao = report.situacao || 'regular'; state.pendencias = [...(report.pendenciasIds || [])]; state.customPendencias = deepCopy(report.customPendencias || []); state.pendenciaYears = deepCopy(report.pendenciaYears || {}); state.yearEditors = {}; state.selectedServices = [...(report.selectedServices || [])]; state.activeRecommendations = [...(report.activeRecommendations || inferRecommendationIds(report.recomendacoes || ''))]; state.recommendationSnapshots = {}; state.activeRecommendations.forEach(recId => state.recommendationSnapshots[recId] = getRecommendationText(recId));
+                state.situacao = report.situacao || 'regular'; state.pendencias = [...(report.pendenciasIds || [])]; state.customPendencias = deepCopy(report.customPendencias || []); state.pendenciaYears = deepCopy(report.pendenciaYears || {}); state.pendenciaCompetencias = deepCopy(report.pendenciaCompetencias || { das: [] }); state.yearEditors = {}; state.selectedServices = normalizeSelectedServices(report.selectedServices || []); state.activeRecommendations = [...(report.activeRecommendations || inferRecommendationIds(report.recomendacoes || ''))]; state.recommendationSnapshots = {}; state.activeRecommendations.forEach(recId => state.recommendationSnapshots[recId] = getRecommendationText(recId));
                 enforceDiagnosticConsistency({ render: false, updateStatus: false });
                 updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Relatório duplicado. Ajuste os detalhes e gere o novo PDF.');
             }
             async function deleteReport(id) { if (!confirm('Excluir este relatório do histórico?')) return; state.history = state.history.filter(item => String(item.id) !== String(id)); await saveHistoryList(state.history); renderHistory(); }
 
-            /* ============ GENERATE ============ */
+            /* ============ GENERATE / PREVIEW ============ */
             const btnGerarPDF = document.getElementById('btnGerarPDF');
-            btnGerarPDF.addEventListener('click', async () => {
-                if (btnGerarPDF.disabled) return; // evita clique duplo gerar 2 PDFs / 2 entradas no histórico
-                if (!validate()) return;
-                const originalLabel = btnGerarPDF.textContent;
-                btnGerarPDF.disabled = true;
-                btnGerarPDF.textContent = 'Gerando PDF…';
+            const btnVisualizarPDF = document.getElementById('btnVisualizarPDF');
+
+            function setPdfButtonsBusy(isBusy, activeButton = null) {
+                btnGerarPDF.disabled = isBusy;
+                btnVisualizarPDF.disabled = isBusy;
+                btnGerarPDF.textContent = isBusy && activeButton === btnGerarPDF ? 'Gerando PDF…' : 'Gerar PDF do Diagnóstico';
+                btnVisualizarPDF.textContent = isBusy && activeButton === btnVisualizarPDF ? 'Preparando visualização…' : 'Visualizar PDF';
+            }
+
+            btnVisualizarPDF.addEventListener('click', () => {
+                if (btnVisualizarPDF.disabled || !validate()) return;
+                setPdfButtonsBusy(true, btnVisualizarPDF);
                 try {
                     const data = collectData();
-                    buildPDF(data);
-                    const entry = { id: generateCustomId('report'), nome: data.nome, cpf: data.cpf, cnpj: data.cnpj, razaoSocial: data.razaoSocial, cidade: data.cidade, uf: data.uf, dataFormatted: data.dataFormatted, situacao: data.situacao, pendenciasIds: [...state.pendencias], customPendencias: deepCopy(state.customPendencias), pendenciaYears: deepCopy(state.pendenciaYears), activeRecommendations: [...state.activeRecommendations], selectedServices: [...state.selectedServices], recomendacoes: data.recomendacoes, observacoes: data.observacoes };
-                    state.history.push(entry); if (state.history.length > 30) state.history = state.history.slice(-30);
-                    await saveHistoryList(state.history); renderHistory(); toast('PDF gerado e baixado com sucesso.');
+                    const pdfUrl = buildPDF(data, 'preview');
+                    const previewWindow = window.open(pdfUrl, '_blank');
+                    if (!previewWindow) {
+                        URL.revokeObjectURL(pdfUrl);
+                        toast('O navegador bloqueou a nova aba. Permita pop-ups para visualizar o PDF.');
+                        return;
+                    }
+                    try { previewWindow.opener = null; } catch (error) { /* restrição do navegador, sem impacto na visualização */ }
+                    setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
+                    toast('PDF aberto em uma nova aba para visualização.');
                 } catch (error) {
-                    console.error(error); toast('Não foi possível gerar o PDF. Verifique a conexão e tente novamente.');
+                    console.error(error);
+                    toast('Não foi possível visualizar o PDF. Verifique a conexão e tente novamente.');
                 } finally {
-                    btnGerarPDF.disabled = false; btnGerarPDF.textContent = originalLabel;
+                    setPdfButtonsBusy(false);
                 }
             });
 
-            /* ============ INIT ============ */
+            btnGerarPDF.addEventListener('click', async () => {
+                if (btnGerarPDF.disabled || !validate()) return;
+                setPdfButtonsBusy(true, btnGerarPDF);
+                try {
+                    const data = collectData();
+                    buildPDF(data, 'save');
+                    const entry = { id: generateCustomId('report'), nome: data.nome, cnpj: data.cnpj, razaoSocial: data.razaoSocial, dataFormatted: data.dataFormatted, situacao: data.situacao, pendenciasIds: [...state.pendencias], customPendencias: deepCopy(state.customPendencias), pendenciaYears: deepCopy(state.pendenciaYears), pendenciaCompetencias: deepCopy(state.pendenciaCompetencias), activeRecommendations: [...state.activeRecommendations], selectedServices: normalizeSelectedServices(state.selectedServices), recomendacoes: data.recomendacoes, observacoes: data.observacoes };
+                    state.history.push(entry);
+                    if (state.history.length > 30) state.history = state.history.slice(-30);
+                    await saveHistoryList(state.history);
+                    renderHistory();
+                    toast('PDF gerado e baixado com sucesso.');
+                } catch (error) {
+                    console.error(error);
+                    toast('Não foi possível gerar o PDF. Verifique a conexão e tente novamente.');
+                } finally {
+                    setPdfButtonsBusy(false);
+                }
+            });
+
+
             async function init() {
                 setRazaoSocialAutoState(true); syncAutomaticRazaoSocial();
                 updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos();
