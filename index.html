@@ -456,6 +456,59 @@
             color: var(--red);
         }
 
+        /* ---------- Situação atual do CNPJ ---------- */
+        .current-status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .current-status-panel {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            background: var(--surface-soft);
+            min-width: 0;
+        }
+
+        .current-status-panel h3 {
+            font-size: 14px;
+            color: var(--navy-800);
+            margin-bottom: 12px;
+        }
+
+        .current-status-fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 11px;
+        }
+
+        .current-status-fields .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .current-period-field[hidden] {
+            display: none !important;
+        }
+
+        .current-status-preview {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border: 1px solid #D8DDF0;
+            border-radius: 10px;
+            background: #fff;
+            color: var(--text-soft);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .current-status-preview.has-value {
+            border-color: #BFC9FF;
+            background: #F7F9FF;
+            color: var(--navy-800);
+            font-weight: 600;
+        }
+
         /* ---------- Form fields ---------- */
         .grid-2 {
             display: grid;
@@ -1250,6 +1303,15 @@
                 border-radius: 14px;
             }
 
+            .current-status-grid,
+            .current-status-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .current-status-fields .field.full {
+                grid-column: span 1;
+            }
+
             .grid-2 {
                 grid-template-columns: 1fr;
             }
@@ -1431,6 +1493,98 @@
                     </div>
                 </section>
 
+                <section class="card" aria-labelledby="tituloSituacaoAtual">
+                    <div class="section-head">
+                        <div class="section-title-wrap">
+                            <span class="section-icon" aria-hidden="true">AT</span>
+                            <div>
+                                <h2 id="tituloSituacaoAtual">Situação Atual do CNPJ</h2>
+                                <p class="card-sub">Informe o enquadramento no Simples Nacional e no SIMEI, com período
+                                    opcional.</p>
+                            </div>
+                        </div>
+                        <span class="section-badge">Informação opcional</span>
+                    </div>
+
+                    <div class="current-status-grid">
+                        <section class="current-status-panel" aria-labelledby="tituloSimplesAtual">
+                            <h3 id="tituloSimplesAtual">Simples Nacional</h3>
+                            <div class="current-status-fields">
+                                <div class="field full">
+                                    <label for="simplesStatus">Situação no Simples Nacional</label>
+                                    <select id="simplesStatus">
+                                        <option value="">Não informado</option>
+                                        <option value="optante">Optante pelo Simples Nacional</option>
+                                        <option value="nao_optante">NÃO optante pelo Simples Nacional</option>
+                                    </select>
+                                </div>
+                                <div class="field full">
+                                    <label for="simplesPeriodo">Formato do período</label>
+                                    <select id="simplesPeriodo" disabled>
+                                        <option value="none">Sem data informada</option>
+                                        <option value="date">Data completa</option>
+                                        <option value="month">Mês e ano</option>
+                                        <option value="year">Somente ano</option>
+                                    </select>
+                                </div>
+                                <div class="field full current-period-field" id="simplesDataWrap" hidden>
+                                    <label for="simplesData">Data</label>
+                                    <input id="simplesData" type="date">
+                                </div>
+                                <div class="field full current-period-field" id="simplesMesWrap" hidden>
+                                    <label for="simplesMes">Mês e ano</label>
+                                    <input id="simplesMes" type="month">
+                                </div>
+                                <div class="field full current-period-field" id="simplesAnoWrap" hidden>
+                                    <label for="simplesAno">Ano</label>
+                                    <input id="simplesAno" type="number" min="1900" max="2100" inputmode="numeric"
+                                        placeholder="Ex.: 2024">
+                                </div>
+                            </div>
+                            <div class="current-status-preview" id="simplesPreview" aria-live="polite">Situação não
+                                informada.</div>
+                        </section>
+
+                        <section class="current-status-panel" aria-labelledby="tituloSimeiAtual">
+                            <h3 id="tituloSimeiAtual">SIMEI</h3>
+                            <div class="current-status-fields">
+                                <div class="field full">
+                                    <label for="simeiStatus">Situação no SIMEI</label>
+                                    <select id="simeiStatus">
+                                        <option value="">Não informado</option>
+                                        <option value="enquadrado">Enquadrado no SIMEI</option>
+                                        <option value="nao_enquadrado">NÃO enquadrado no SIMEI</option>
+                                    </select>
+                                </div>
+                                <div class="field full">
+                                    <label for="simeiPeriodo">Formato do período</label>
+                                    <select id="simeiPeriodo" disabled>
+                                        <option value="none">Sem data informada</option>
+                                        <option value="date">Data completa</option>
+                                        <option value="month">Mês e ano</option>
+                                        <option value="year">Somente ano</option>
+                                    </select>
+                                </div>
+                                <div class="field full current-period-field" id="simeiDataWrap" hidden>
+                                    <label for="simeiData">Data</label>
+                                    <input id="simeiData" type="date">
+                                </div>
+                                <div class="field full current-period-field" id="simeiMesWrap" hidden>
+                                    <label for="simeiMes">Mês e ano</label>
+                                    <input id="simeiMes" type="month">
+                                </div>
+                                <div class="field full current-period-field" id="simeiAnoWrap" hidden>
+                                    <label for="simeiAno">Ano</label>
+                                    <input id="simeiAno" type="number" min="1900" max="2100" inputmode="numeric"
+                                        placeholder="Ex.: 2024">
+                                </div>
+                            </div>
+                            <div class="current-status-preview" id="simeiPreview" aria-live="polite">Situação não
+                                informada.</div>
+                        </section>
+                    </div>
+                </section>
+
                 <section class="card" aria-labelledby="tituloPendencias">
                     <div class="section-head">
                         <div class="section-title-wrap">
@@ -1595,6 +1749,22 @@
                 terms: 'https://portaldomeibrasil.com.br/termos-de-uso/'
             };
             const STATUS_LABELS = { regular: 'Regular', atencao: 'Atenção', pendencias: 'Pendências', critico: 'Crítico' };
+            const CURRENT_CNPJ_STATUS = {
+                simples: {
+                    prefix: 'Situação no Simples Nacional',
+                    statuses: {
+                        optante: 'Optante pelo Simples Nacional',
+                        nao_optante: 'NÃO optante pelo Simples Nacional'
+                    }
+                },
+                simei: {
+                    prefix: 'Situação no SIMEI',
+                    statuses: {
+                        enquadrado: 'Enquadrado no SIMEI',
+                        nao_enquadrado: 'NÃO enquadrado no SIMEI'
+                    }
+                }
+            };
             const STATUS_COLORS_PDF = { regular: [46, 158, 91], atencao: [198, 135, 12], pendencias: [200, 90, 38], critico: [196, 59, 48] };
             const STATUS_CARD_COLORS_PDF = {
                 regular: { background: [228, 246, 235], border: [36, 125, 73], text: [36, 125, 73] },
@@ -1609,6 +1779,7 @@
             /* ============ STATE ============ */
             let state = {
                 situacao: 'regular',
+                situacaoAtual: createEmptyCurrentStatus(),
                 pendencias: [],
                 customPendencias: [],
                 pendenciaYears: {},
@@ -1659,6 +1830,26 @@
             function escapeHtml(value) { return String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char])); }
             function todayISO() { const now = new Date(); const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000); return local.toISOString().slice(0, 10); }
             function formatDateBR(iso) { if (!iso) return ''; const [year, month, day] = iso.split('-'); return `${day}/${month}/${year}`; }
+            function createEmptyCurrentStatus() {
+                return {
+                    simples: { status: '', periodType: 'none', date: '', month: '', year: '' },
+                    simei: { status: '', periodType: 'none', date: '', month: '', year: '' }
+                };
+            }
+            function normalizeCurrentStatusData(value) {
+                const empty = createEmptyCurrentStatus();
+                ['simples', 'simei'].forEach(group => {
+                    const source = value && value[group] ? value[group] : {};
+                    empty[group] = {
+                        status: String(source.status || ''),
+                        periodType: ['none', 'date', 'month', 'year'].includes(source.periodType) ? source.periodType : 'none',
+                        date: String(source.date || ''),
+                        month: String(source.month || ''),
+                        year: String(source.year || '')
+                    };
+                });
+                return empty;
+            }
             function maskCPF(value) { let v = value.replace(/\D/g, '').slice(0, 11); v = v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); return v; }
             function maskCNPJ(value) { let v = value.replace(/\D/g, '').slice(0, 14); v = v.replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2'); return v; }
             function normalizeFullName(value) { return String(value || '').trim().replace(/\s+/g, ' ').toLocaleUpperCase('pt-BR'); }
@@ -1704,13 +1895,101 @@
 
             /* ============ ELEMENTS ============ */
             const els = {
-                nome: document.getElementById('nome'), cnpj: document.getElementById('cnpj'), razaoSocial: document.getElementById('razaoSocial'), data: document.getElementById('dataConsulta'), recomendacoes: document.getElementById('recomendacoes'), observacoes: document.getElementById('observacoes'), statusPill: document.getElementById('statusPill'), situacaoOptions: document.getElementById('situacaoOptions'), pendenciasList: document.getElementById('pendenciasList'), novaPendenciaInput: document.getElementById('novaPendenciaInput'), textLib: document.getElementById('textLib'), servicosList: document.getElementById('servicosList'), historyList: document.getElementById('historyList'), templateSelect: document.getElementById('templateSelect'), pendenciasCount: document.getElementById('pendenciasCount'), recomendacoesCount: document.getElementById('recomendacoesCount'), servicesCount: document.getElementById('servicesCount')
+                nome: document.getElementById('nome'), cnpj: document.getElementById('cnpj'), razaoSocial: document.getElementById('razaoSocial'), data: document.getElementById('dataConsulta'), recomendacoes: document.getElementById('recomendacoes'), observacoes: document.getElementById('observacoes'), statusPill: document.getElementById('statusPill'), situacaoOptions: document.getElementById('situacaoOptions'), pendenciasList: document.getElementById('pendenciasList'), novaPendenciaInput: document.getElementById('novaPendenciaInput'), textLib: document.getElementById('textLib'), servicosList: document.getElementById('servicosList'), historyList: document.getElementById('historyList'), templateSelect: document.getElementById('templateSelect'), pendenciasCount: document.getElementById('pendenciasCount'), recomendacoesCount: document.getElementById('recomendacoesCount'), servicesCount: document.getElementById('servicesCount'),
+                simplesStatus: document.getElementById('simplesStatus'), simplesPeriodo: document.getElementById('simplesPeriodo'), simplesData: document.getElementById('simplesData'), simplesMes: document.getElementById('simplesMes'), simplesAno: document.getElementById('simplesAno'), simplesDataWrap: document.getElementById('simplesDataWrap'), simplesMesWrap: document.getElementById('simplesMesWrap'), simplesAnoWrap: document.getElementById('simplesAnoWrap'), simplesPreview: document.getElementById('simplesPreview'),
+                simeiStatus: document.getElementById('simeiStatus'), simeiPeriodo: document.getElementById('simeiPeriodo'), simeiData: document.getElementById('simeiData'), simeiMes: document.getElementById('simeiMes'), simeiAno: document.getElementById('simeiAno'), simeiDataWrap: document.getElementById('simeiDataWrap'), simeiMesWrap: document.getElementById('simeiMesWrap'), simeiAnoWrap: document.getElementById('simeiAnoWrap'), simeiPreview: document.getElementById('simeiPreview')
             };
             els.data.value = todayISO();
             els.cnpj.addEventListener('input', event => { event.target.value = maskCNPJ(event.target.value); clearFieldError('cnpj'); syncAutomaticRazaoSocial(); });
             els.nome.addEventListener('input', () => { clearFieldError('nome'); syncAutomaticRazaoSocial(); });
             els.razaoSocial.addEventListener('input', () => setRazaoSocialAutoState(false));
             els.razaoSocial.addEventListener('blur', () => { if (!els.razaoSocial.value.trim()) { setRazaoSocialAutoState(true); syncAutomaticRazaoSocial(); } });
+
+            function getCurrentStatusFields(group) {
+                return {
+                    status: els[`${group}Status`],
+                    period: els[`${group}Periodo`],
+                    date: els[`${group}Data`],
+                    month: els[`${group}Mes`],
+                    year: els[`${group}Ano`],
+                    dateWrap: els[`${group}DataWrap`],
+                    monthWrap: els[`${group}MesWrap`],
+                    yearWrap: els[`${group}AnoWrap`],
+                    preview: els[`${group}Preview`]
+                };
+            }
+            function formatCurrentStatusPeriod(item) {
+                if (!item) return '';
+                if (item.periodType === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(item.date)) return formatDateBR(item.date);
+                if (item.periodType === 'month' && /^\d{4}-(0[1-9]|1[0-2])$/.test(item.month)) {
+                    const [year, month] = item.month.split('-');
+                    return `${MONTH_NAMES[Number(month) - 1]} de ${year}`;
+                }
+                if (item.periodType === 'year' && /^\d{4}$/.test(item.year)) return item.year;
+                return '';
+            }
+            function buildCurrentStatusSentence(group, item = state.situacaoAtual[group]) {
+                const config = CURRENT_CNPJ_STATUS[group];
+                const statusLabel = config && config.statuses[item?.status];
+                if (!statusLabel) return '';
+                const period = formatCurrentStatusPeriod(item);
+                return `${config.prefix}: ${statusLabel}${period ? ` desde ${period}` : ''}.`;
+            }
+            function renderCurrentStatusGroup(group) {
+                const fields = getCurrentStatusFields(group);
+                const item = state.situacaoAtual[group];
+                const hasStatus = Boolean(CURRENT_CNPJ_STATUS[group].statuses[item.status]);
+                if (!hasStatus) {
+                    item.periodType = 'none'; item.date = ''; item.month = ''; item.year = '';
+                    fields.period.value = 'none'; fields.date.value = ''; fields.month.value = ''; fields.year.value = '';
+                }
+                fields.period.disabled = !hasStatus;
+                fields.dateWrap.hidden = item.periodType !== 'date';
+                fields.monthWrap.hidden = item.periodType !== 'month';
+                fields.yearWrap.hidden = item.periodType !== 'year';
+                const sentence = buildCurrentStatusSentence(group, item);
+                fields.preview.textContent = sentence || 'Situação não informada.';
+                fields.preview.classList.toggle('has-value', Boolean(sentence));
+            }
+            function syncCurrentStatusGroup(group, { clearUnused = false } = {}) {
+                const fields = getCurrentStatusFields(group);
+                const item = state.situacaoAtual[group];
+                item.status = fields.status.value;
+                item.periodType = fields.period.value || 'none';
+                item.date = fields.date.value;
+                item.month = fields.month.value;
+                item.year = fields.year.value.trim();
+                if (clearUnused) {
+                    if (item.periodType !== 'date') { item.date = ''; fields.date.value = ''; }
+                    if (item.periodType !== 'month') { item.month = ''; fields.month.value = ''; }
+                    if (item.periodType !== 'year') { item.year = ''; fields.year.value = ''; }
+                }
+                renderCurrentStatusGroup(group);
+            }
+            function setCurrentStatusFields(value) {
+                state.situacaoAtual = normalizeCurrentStatusData(value);
+                ['simples', 'simei'].forEach(group => {
+                    const fields = getCurrentStatusFields(group);
+                    const item = state.situacaoAtual[group];
+                    fields.status.value = item.status;
+                    fields.period.value = item.periodType;
+                    fields.date.value = item.date;
+                    fields.month.value = item.month;
+                    fields.year.value = item.year;
+                    renderCurrentStatusGroup(group);
+                });
+            }
+            function getCurrentStatusLines() {
+                return ['simples', 'simei'].map(group => buildCurrentStatusSentence(group)).filter(Boolean);
+            }
+            ['simples', 'simei'].forEach(group => {
+                const fields = getCurrentStatusFields(group);
+                fields.status.addEventListener('change', () => syncCurrentStatusGroup(group, { clearUnused: !fields.status.value }));
+                fields.period.addEventListener('change', () => syncCurrentStatusGroup(group, { clearUnused: true }));
+                fields.date.addEventListener('input', () => syncCurrentStatusGroup(group));
+                fields.month.addEventListener('input', () => syncCurrentStatusGroup(group));
+                fields.year.addEventListener('input', () => syncCurrentStatusGroup(group));
+            });
 
             /* ============ SITUAÇÃO ============ */
             function updateStatusPill() {
@@ -2121,7 +2400,7 @@
             document.getElementById('btnReset').addEventListener('click', () => {
                 if (!confirm('Iniciar um novo relatório? Os campos preenchidos serão apagados.')) return;
                 els.nome.value = ''; els.cnpj.value = ''; els.razaoSocial.value = ''; els.data.value = todayISO(); els.recomendacoes.value = ''; els.observacoes.value = '';
-                state.situacao = 'regular'; state.pendencias = []; state.customPendencias = []; state.pendenciaYears = {}; state.pendenciaCompetencias = { das: [] }; state.yearEditors = {}; state.activeRecommendations = []; state.recommendationSnapshots = {}; state.selectedServices = []; setRazaoSocialAutoState(true);
+                state.situacao = 'regular'; state.pendencias = []; state.customPendencias = []; state.pendenciaYears = {}; state.pendenciaCompetencias = { das: [] }; state.yearEditors = {}; state.activeRecommendations = []; state.recommendationSnapshots = {}; state.selectedServices = []; setRazaoSocialAutoState(true); setCurrentStatusFields(createEmptyCurrentStatus());
                 clearFieldError('nome'); clearFieldError('cnpj'); updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); toast('Novo relatório iniciado.');
             });
 
@@ -2159,7 +2438,7 @@
             function collectData() {
                 enforceDiagnosticConsistency({ render: true, updateStatus: true });
                 if (!els.razaoSocial.value.trim()) { setRazaoSocialAutoState(true); syncAutomaticRazaoSocial(); }
-                return { nome: els.nome.value.trim(), cnpj: els.cnpj.value.trim(), razaoSocial: els.razaoSocial.value.trim(), dataISO: els.data.value || todayISO(), dataFormatted: formatDateBR(els.data.value || todayISO()), situacao: state.situacao, pendenciasLabels: state.pendencias.map(buildPendenciaLabel), servicesLabels: getSelectedServiceLabels(), recomendacoes: normalizeTextarea(els.recomendacoes.value), observacoes: els.observacoes.value };
+                return { nome: els.nome.value.trim(), cnpj: els.cnpj.value.trim(), razaoSocial: els.razaoSocial.value.trim(), dataISO: els.data.value || todayISO(), dataFormatted: formatDateBR(els.data.value || todayISO()), situacao: state.situacao, situacaoAtual: deepCopy(state.situacaoAtual), currentStatusLines: getCurrentStatusLines(), pendenciasLabels: state.pendencias.map(buildPendenciaLabel), servicesLabels: getSelectedServiceLabels(), recomendacoes: normalizeTextarea(els.recomendacoes.value), observacoes: els.observacoes.value };
             }
             function sanitizeFilename(value) { return (value || 'cliente').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'cliente'; }
             function buildPDF(data, outputMode = 'save') {
@@ -2304,6 +2583,24 @@
                 doc.text(`Situação: ${STATUS_LABELS[data.situacao]}`, marginX + 4, y);
                 y += 13;
 
+                if (data.currentStatusLines && data.currentStatusLines.length) {
+                    y = checkBreak(y, 22 + data.currentStatusLines.length * 8);
+                    y = sectionTitle('Situação Atual', y);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    doc.setTextColor(20, 22, 43);
+                    data.currentStatusLines.forEach(line => {
+                        const lines = doc.splitTextToSize(String(line), pageW - marginX * 2);
+                        lines.forEach(textLine => {
+                            y = checkBreak(y, 6.5);
+                            doc.text(textLine, marginX, y);
+                            y += 5.3;
+                        });
+                        y += 2;
+                    });
+                    y += 2;
+                }
+
                 y = checkBreak(y, 24);
                 y = sectionTitle('Pendências Identificadas', y);
                 if (!data.pendenciasLabels.length) {
@@ -2425,7 +2722,7 @@
                 const report = state.history.find(item => String(item.id) === String(id)); if (!report) return;
                 els.nome.value = report.nome || ''; els.cnpj.value = report.cnpj || ''; els.razaoSocial.value = report.razaoSocial || ''; els.data.value = todayISO(); els.recomendacoes.value = report.recomendacoes || ''; els.observacoes.value = report.observacoes || '';
                 const automaticRazao = buildAutomaticRazaoSocial(); setRazaoSocialAutoState(!report.razaoSocial || report.razaoSocial === automaticRazao); if (!report.razaoSocial) syncAutomaticRazaoSocial();
-                state.situacao = report.situacao || 'regular'; state.pendencias = [...(report.pendenciasIds || [])]; state.customPendencias = deepCopy(report.customPendencias || []); state.pendenciaYears = deepCopy(report.pendenciaYears || {}); state.pendenciaCompetencias = deepCopy(report.pendenciaCompetencias || { das: [] }); state.yearEditors = {}; state.selectedServices = normalizeSelectedServices(report.selectedServices || []); state.activeRecommendations = [...(report.activeRecommendations || inferRecommendationIds(report.recomendacoes || ''))]; state.recommendationSnapshots = {}; state.activeRecommendations.forEach(recId => state.recommendationSnapshots[recId] = getRecommendationText(recId));
+                state.situacao = report.situacao || 'regular'; setCurrentStatusFields(report.situacaoAtual || createEmptyCurrentStatus()); state.pendencias = [...(report.pendenciasIds || [])]; state.customPendencias = deepCopy(report.customPendencias || []); state.pendenciaYears = deepCopy(report.pendenciaYears || {}); state.pendenciaCompetencias = deepCopy(report.pendenciaCompetencias || { das: [] }); state.yearEditors = {}; state.selectedServices = normalizeSelectedServices(report.selectedServices || []); state.activeRecommendations = [...(report.activeRecommendations || inferRecommendationIds(report.recomendacoes || ''))]; state.recommendationSnapshots = {}; state.activeRecommendations.forEach(recId => state.recommendationSnapshots[recId] = getRecommendationText(recId));
                 enforceDiagnosticConsistency({ render: false, updateStatus: false });
                 updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Relatório duplicado. Ajuste os detalhes e gere o novo PDF.');
             }
@@ -2471,7 +2768,7 @@
                 try {
                     const data = collectData();
                     buildPDF(data, 'save');
-                    const entry = { id: generateCustomId('report'), nome: data.nome, cnpj: data.cnpj, razaoSocial: data.razaoSocial, dataFormatted: data.dataFormatted, situacao: data.situacao, pendenciasIds: [...state.pendencias], customPendencias: deepCopy(state.customPendencias), pendenciaYears: deepCopy(state.pendenciaYears), pendenciaCompetencias: deepCopy(state.pendenciaCompetencias), activeRecommendations: [...state.activeRecommendations], selectedServices: normalizeSelectedServices(state.selectedServices), recomendacoes: data.recomendacoes, observacoes: data.observacoes };
+                    const entry = { id: generateCustomId('report'), nome: data.nome, cnpj: data.cnpj, razaoSocial: data.razaoSocial, dataFormatted: data.dataFormatted, situacao: data.situacao, situacaoAtual: deepCopy(data.situacaoAtual), pendenciasIds: [...state.pendencias], customPendencias: deepCopy(state.customPendencias), pendenciaYears: deepCopy(state.pendenciaYears), pendenciaCompetencias: deepCopy(state.pendenciaCompetencias), activeRecommendations: [...state.activeRecommendations], selectedServices: normalizeSelectedServices(state.selectedServices), recomendacoes: data.recomendacoes, observacoes: data.observacoes };
                     state.history.push(entry);
                     if (state.history.length > 30) state.history = state.history.slice(-30);
                     await saveHistoryList(state.history);
@@ -2487,7 +2784,7 @@
 
 
             async function init() {
-                setRazaoSocialAutoState(true); syncAutomaticRazaoSocial();
+                setRazaoSocialAutoState(true); syncAutomaticRazaoSocial(); setCurrentStatusFields(state.situacaoAtual);
                 updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos();
                 if (!hasClaudeStorage) document.getElementById('historyHint').textContent = 'Histórico salvo neste navegador (local).';
                 state.history = await loadHistory(); renderHistory();
