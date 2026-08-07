@@ -33,7 +33,7 @@ export const SkipLink = styled.a`
 export const MainLayout = styled.main`
   width: min(1540px, 100%);
   margin: 0 auto;
-  padding: clamp(18px, 2.6vw, 34px);
+  padding: 18px clamp(18px, 2.6vw, 34px) clamp(18px, 2.6vw, 34px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
   gap: clamp(18px, 2vw, 28px);
@@ -67,4 +67,8 @@ export const Sidebar = styled.aside`
   @media (max-width: 900px) {
     position: static;
   }
+`;
+
+export const WorkspaceAnchor = styled.div`
+  scroll-margin-top: 92px;
 `;

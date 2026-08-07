@@ -197,6 +197,15 @@ src/utils/cnpj.ts
 - Numeração visual dos certificados conforme a ordem de anexação
 - Renumeração automática após remoção de certificado
 - Limites de segurança para anexos
+- Navegação modular entre Diagnóstico CNPJ e Pendências DAS
+- Tabela DAS editável com adição, duplicação e exclusão de registros
+- Importação de dados DAS por análise de texto colado, com prévia antes de aplicar
+- Agrupamento automático das competências DAS por ano
+- Subtotais anuais de principal, multa, juros e total, além do total geral
+- Cálculo automático dos totais de principal, multa, juros e total
+- Geração de PDF específico de Pendências DAS em A4 vertical, com resumo por ano e tabela otimizada
+- Rodapé institucional com Termos de Uso em todas as páginas geradas do relatório DAS
+- Geração de documento completo combinando Diagnóstico + Pendências DAS + certificados
 - Geração e visualização do PDF
 - União do diagnóstico com certificados PDF na ordem exibida na interface
 - Histórico local versionado com limite de 30 relatórios
@@ -206,6 +215,29 @@ src/utils/cnpj.ts
 - Fonte Inter
 - Paleta navy, azul, ciano e verde-limão centralizada
 - Identidade visual baseada na logo fornecida para o projeto
+
+## Módulo Pendências DAS
+
+A ferramenta Pendências DAS funciona como um módulo complementar ao diagnóstico principal. Os dados de nome e CNPJ são compartilhados entre as duas áreas.
+
+O módulo permite:
+
+- adicionar registros manualmente;
+- separar automaticamente as competências por ano com subtotal financeiro de cada grupo;
+- recalcular os grupos quando o período de uma competência é alterado;
+- editar qualquer célula da tabela;
+- duplicar e excluir linhas por ícones;
+- colar o conteúdo bruto de uma consulta no modal de Análise;
+- revisar os registros reconhecidos antes de atualizar a tabela;
+- escolher entre adicionar os registros analisados aos existentes ou substituir a tabela;
+- gerar somente o PDF DAS;
+- incluir opcionalmente o módulo DAS no documento completo.
+
+A análise é determinística e executada localmente no navegador. Ela extrai apenas informações reconhecíveis presentes no texto, sem inventar situação ou valores ausentes.
+
+O PDF DAS é gerado em A4 vertical. O documento apresenta resumo financeiro geral, resumo por ano, detalhamento das competências agrupado por ano, subtotal anual e rodapé institucional com acesso aos Termos de Uso em todas as páginas do relatório. Para melhorar a leitura, a tabela do PDF prioriza Competência, Situação, Vencimento, Principal, Encargos e Total. Os demais campos continuam disponíveis e editáveis na aplicação.
+
+O PDF completo segue esta ordem: Diagnóstico CNPJ, Pendências DAS (quando incluído) e certificados anexados.
 
 ## Limites de certificados
 

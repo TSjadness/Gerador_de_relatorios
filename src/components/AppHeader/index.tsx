@@ -17,9 +17,10 @@ import {
 type AppHeaderProps = {
   onApplyTemplate: (key: string) => boolean;
   onReset: () => void;
+  showTemplates?: boolean;
 };
 
-export function AppHeader({ onApplyTemplate, onReset }: AppHeaderProps) {
+export function AppHeader({ onApplyTemplate, onReset, showTemplates = true }: AppHeaderProps) {
   const handleTemplateChange = (value: string) => {
     if (!value) return;
     onApplyTemplate(value);
@@ -36,11 +37,13 @@ export function AppHeader({ onApplyTemplate, onReset }: AppHeaderProps) {
           </BrandCopy>
         </Brand>
         <Actions>
-          <ModelSelect value="" onChange={(event) => handleTemplateChange(event.target.value)} aria-label="Aplicar modelo de relatório">
-            {TEMPLATE_OPTIONS.map((option) => (
-              <option key={option.value || 'empty'} value={option.value}>{option.label}</option>
-            ))}
-          </ModelSelect>
+          {showTemplates ? (
+            <ModelSelect value="" onChange={(event) => handleTemplateChange(event.target.value)} aria-label="Aplicar modelo de relatório">
+              {TEMPLATE_OPTIONS.map((option) => (
+                <option key={option.value || 'empty'} value={option.value}>{option.label}</option>
+              ))}
+            </ModelSelect>
+          ) : null}
           <ThemeToggle />
           <ResetButton type="button" icon="pi pi-file-plus" label="Novo relatório" onClick={onReset} />
         </Actions>

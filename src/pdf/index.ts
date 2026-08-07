@@ -3,6 +3,8 @@ import { PDFDocument } from 'pdf-lib';
 import { PDF_LINKS, STATUS_LABELS } from '../constants/diagnostic';
 import { brandColors, lightColors, neutralColors, statusColors } from '../config/theme';
 import type { CertificateItem, DiagnosticPdfData, DiagnosticStatus } from '../types/diagnostic';
+import type { DasPdfData } from '../types/das';
+import { calculateDasTotals, formatCurrency, groupDasRowsByYear, parseMoney } from '../domain/das';
 import { imageUrlToDataUrl } from '../utils/assets';
 import { formatDateBr } from '../utils/date';
 import { sanitizeFilename } from '../utils/format';
@@ -24,6 +26,7 @@ const PDF_COLORS = {
   blue: hexToRgb(brandColors.blue600),
   blueSoft: hexToRgb(brandColors.blue100),
   cyan: hexToRgb(brandColors.cyan500),
+  blueLight: hexToRgb(brandColors.blue100),
   cyanSoft: hexToRgb(lightColors.cyanSoft),
   lime: hexToRgb(brandColors.lime500),
   white: hexToRgb(brandColors.white),
@@ -56,16 +59,16 @@ function buildReportPdf(data: DiagnosticPdfData, logoDataUrl: string) {
 
   const drawInitialHeader = () => {
     doc.setFillColor(...PDF_COLORS.navy);
-    doc.rect(0, 0, pageWidth, 30, 'F');
-    doc.addImage(logoDataUrl, 'PNG', marginX, 5.5, 15, 15);
+    doc.rect(0, 0, pageWidth, 25.5, 'F');
+    doc.addImage(logoDataUrl, 'PNG', marginX, 1, 25, 25);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11.4);
     doc.setTextColor(...PDF_COLORS.white);
-    doc.text('Diagnóstico Técnico de CNPJ', marginX + 20, 12.5);
+    doc.text('Diagnóstico Técnico de CNPJ', marginX + 25, 12.5);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.4);
     doc.setTextColor(...PDF_COLORS.textFaint);
-    doc.text('Análise e orientação para o Microempreendedor Individual', marginX + 20, 18.2);
+    doc.text('Análise e orientação para o Microempreendedor Individual', marginX + 25, 18.2);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9.2);
     doc.setTextColor(...PDF_COLORS.cyan);
@@ -322,6 +325,363 @@ function buildReportPdf(data: DiagnosticPdfData, logoDataUrl: string) {
   return { arrayBuffer: doc.output('arraybuffer'), filename };
 }
 
+
+function buildDasReportPdf(data: DasPdfData, logoDataUrl: string) {
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const marginX = 16;
+  const footerTop = 274;
+  const contentBottom = 268;
+  const rows = data.rows;
+  const totals = calculateDasTotals(rows);
+  const yearGroups = groupDasRowsByYear(rows);
+  let y = 0;
+
+  const drawHeader = (continuation = false) => {
+    doc.setFillColor(...PDF_COLORS.navy);
+    doc.rect(0, 0, pageWidth, continuation ? 16 : 30, 'F');
+    doc.addImage(logoDataUrl, 'PNG', marginX, continuation ? 3 : 1, continuation ? 9 : 25, continuation ? 9 : 25);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...PDF_COLORS.white);
+    doc.setFontSize(continuation ? 9.2 : 11.4);
+    doc.text('Relatório de Pendências DAS', marginX + (continuation ? 13 : 25), continuation ? 9 : 12.5);
+    if (!continuation) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.2);
+      doc.setTextColor(...PDF_COLORS.textFaint);
+      doc.text('Competências organizadas por ano e resumo dos valores informados', marginX + 25, 18.2);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.8);
+      doc.setTextColor(...PDF_COLORS.cyan);
+      doc.text(`Data: ${formatDateBr(data.analysisDate)}`, pageWidth - marginX, 11.5, { align: 'right' });
+      doc.setTextColor(...PDF_COLORS.white);
+      doc.text(`Ref.: ${data.customer.cnpj || '-'}`, pageWidth - marginX, 18.1, { align: 'right' });
+    } else {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...PDF_COLORS.textFaint);
+      doc.text(data.customer.cnpj || '-', pageWidth - marginX, 9, { align: 'right' });
+    }
+    y = continuation ? 24 : 42;
+  };
+
+  const drawFooter = () => {
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let page = 1; page <= pageCount; page += 1) {
+      doc.setPage(page);
+      doc.setFillColor(...PDF_COLORS.navy);
+      doc.rect(0, footerTop, pageWidth, pageHeight - footerTop, 'F');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(...PDF_COLORS.textFaint);
+      doc.text('Portal do MEI Brasil é uma plataforma privada de assessoria, sem vínculo com órgãos governamentais. CNPJ 48.716.520/0001-21', pageWidth / 2, 280.6, { align: 'center' });
+      doc.setFillColor(...PDF_COLORS.navySoft);
+      doc.roundedRect((pageWidth - 27) / 2, 283.4, 27, 5.6, 2.4, 2.4, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.1);
+      doc.setTextColor(...PDF_COLORS.cyan);
+      doc.text('Termos de Uso', pageWidth / 2, 287.2, { align: 'center' });
+      doc.link((pageWidth - 27) / 2, 283.4, 27, 5.6, { url: PDF_LINKS.terms });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.2);
+      doc.setTextColor(...PDF_COLORS.textFaint);
+      doc.text(`Página ${page} de ${pageCount}`, pageWidth / 2, 293, { align: 'center' });
+    }
+  };
+
+  const addPage = () => {
+    doc.addPage('a4', 'portrait');
+    drawHeader(true);
+  };
+
+  const checkBreak = (needed: number) => {
+    if (y + needed > contentBottom) addPage();
+  };
+
+  const sectionTitle = (title: string) => {
+    checkBreak(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10.6);
+    doc.setTextColor(...PDF_COLORS.text);
+    doc.text(title, marginX, y);
+    doc.setDrawColor(...PDF_COLORS.border);
+    doc.setLineWidth(0.3);
+    doc.line(marginX, y + 2.6, pageWidth - marginX, y + 2.6);
+    y += 9;
+  };
+
+  const writeWrappedText = (text: string, width = pageWidth - marginX * 2) => {
+    const blocks = text.trim().split(/\n\s*\n/).filter(Boolean);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.2);
+    doc.setTextColor(...PDF_COLORS.text);
+    blocks.forEach((block, blockIndex) => {
+      const lines = doc.splitTextToSize(block.replace(/\n+/g, ' '), width) as string[];
+      lines.forEach((line) => {
+        checkBreak(6);
+        doc.text(line, marginX, y);
+        y += 4.9;
+      });
+      if (blockIndex < blocks.length - 1) y += 1.8;
+    });
+  };
+
+  const drawSummaryCards = () => {
+    const summaries = [
+      ['Principal', formatCurrency(totals.principal)],
+      ['Multas', formatCurrency(totals.fine)],
+      ['Juros', formatCurrency(totals.interest)],
+      ['Total geral', formatCurrency(totals.total)]
+    ];
+    const gap = 3.5;
+    const width = (pageWidth - marginX * 2 - gap * 3) / 4;
+    checkBreak(20);
+    summaries.forEach(([label, value], index) => {
+      const x = marginX + index * (width + gap);
+      const featured = index === summaries.length - 1;
+      doc.setFillColor(...PDF_COLORS.blueSoft);
+      doc.setDrawColor(...(featured ? PDF_COLORS.blue : PDF_COLORS.border));
+      doc.setLineWidth(featured ? 0.25 : 0.25);
+      doc.roundedRect(x, y, width, 15, 2, 2, 'FD');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.8);
+      doc.setTextColor(...PDF_COLORS.textFaint);
+      doc.text(label, x + 2.5, y + 4.5);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.4);
+      doc.setTextColor(...(featured ? PDF_COLORS.blue : PDF_COLORS.text));
+      doc.text(value, x + width - 2.5, y + 10.7, { align: 'right', maxWidth: width - 5 });
+    });
+    y += 21;
+  };
+
+  const annualColumnWidths = [25, 31, 41, 41, 40];
+  const annualHeaders = ['Ano', 'Competências', 'Principal', 'Encargos', 'Total'];
+  const annualRowHeight = 8;
+
+  const drawAnnualHeader = () => {
+    let x = marginX;
+    doc.setFillColor(...PDF_COLORS.navySoft);
+    doc.rect(marginX, y, 178, annualRowHeight, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.2);
+    doc.setTextColor(...PDF_COLORS.white);
+    annualHeaders.forEach((header, index) => {
+      const align = index >= 2 ? 'right' : index === 1 ? 'center' : 'left';
+      const offset = align === 'right' ? annualColumnWidths[index] - 2 : align === 'center' ? annualColumnWidths[index] / 2 : 2;
+      doc.text(header, x + offset, y + 5.1, { align });
+      x += annualColumnWidths[index];
+    });
+    y += annualRowHeight;
+  };
+
+  const drawAnnualRow = (group: (typeof yearGroups)[number], index: number) => {
+    if (y + annualRowHeight > contentBottom) {
+      addPage();
+      drawAnnualHeader();
+    }
+    if (index % 2 === 1) {
+      doc.setFillColor(...PDF_COLORS.blueSoft);
+      doc.rect(marginX, y, 178, annualRowHeight, 'F');
+    }
+    doc.setDrawColor(...PDF_COLORS.border);
+    doc.setLineWidth(0.2);
+    doc.line(marginX, y + annualRowHeight, pageWidth - marginX, y + annualRowHeight);
+    const values = [
+      group.year === null ? 'Sem ano' : String(group.year),
+      String(group.recordCount),
+      formatCurrency(group.totals.principal),
+      formatCurrency(group.totals.fine + group.totals.interest),
+      formatCurrency(group.totals.total)
+    ];
+    let x = marginX;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...PDF_COLORS.text);
+    values.forEach((value, columnIndex) => {
+      const align = columnIndex >= 2 ? 'right' : columnIndex === 1 ? 'center' : 'left';
+      const cellWidth = annualColumnWidths[columnIndex];
+      const offset = align === 'right' ? cellWidth - 2 : align === 'center' ? cellWidth / 2 : 2;
+      doc.text(value, x + offset, y + 5.15, { align, maxWidth: cellWidth - 4 });
+      x += cellWidth;
+    });
+    y += annualRowHeight;
+  };
+
+  const tableColumnWidths = [31, 28, 30, 29, 29, 31];
+  const tableHeaders = ['Competência', 'Situação', 'Vencimento', 'Principal', 'Encargos', 'Total'];
+  const rowHeight = 8;
+
+  const drawGroupLabel = (label: string, total: number, count: number, continuation = false) => {
+    checkBreak(15);
+    doc.setFillColor(...PDF_COLORS.blueLight);
+    doc.setDrawColor(...PDF_COLORS.cyan);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(marginX, y, 178, 11, 2, 2, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.2);
+    doc.setTextColor(...PDF_COLORS.text);
+    doc.text(`${label}${continuation ? ' - continuação' : ''}`, marginX + 3, y + 6.8);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.4);
+    doc.setTextColor(...PDF_COLORS.textSoft);
+    doc.text(`${count} ${count === 1 ? 'competência' : 'competências'}`, pageWidth - marginX - 46, y + 6.8, { align: 'right' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.2);
+    doc.setTextColor(...PDF_COLORS.blue);
+    doc.text(formatCurrency(total), pageWidth - marginX - 3, y + 6.8, { align: 'right' });
+    y += 14;
+  };
+
+  const drawTableHeader = () => {
+    let x = marginX;
+    doc.setFillColor(...PDF_COLORS.navySoft);
+    doc.rect(marginX, y, 178, rowHeight, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.1);
+    doc.setTextColor(...PDF_COLORS.white);
+    tableHeaders.forEach((header, index) => {
+      const align = index >= 3 ? 'right' : index === 2 ? 'center' : 'left';
+      const cellWidth = tableColumnWidths[index];
+      const offset = align === 'right' ? cellWidth - 2 : align === 'center' ? cellWidth / 2 : 2;
+      doc.text(header, x + offset, y + 5.1, { align, maxWidth: cellWidth - 4 });
+      x += cellWidth;
+    });
+    y += rowHeight;
+  };
+
+  const drawTableRow = (group: (typeof yearGroups)[number], row: (typeof rows)[number], index: number) => {
+    if (y + rowHeight > contentBottom) {
+      addPage();
+      drawGroupLabel(group.year === null ? 'DAS sem ano informado' : `DAS - ${group.year}`, group.totals.total, group.recordCount, true);
+      drawTableHeader();
+    }
+    if (index % 2 === 1) {
+      doc.setFillColor(...PDF_COLORS.blueSoft);
+      doc.rect(marginX, y, 178, rowHeight, 'F');
+    }
+    doc.setDrawColor(...PDF_COLORS.border);
+    doc.setLineWidth(0.2);
+    doc.line(marginX, y + rowHeight, pageWidth - marginX, y + rowHeight);
+    const values = [
+      row.period || '-',
+      row.situation || '-',
+      row.dueDate || '-',
+      row.principal ? formatCurrency(parseMoney(row.principal)) : '-',
+      (row.fine || row.interest) ? formatCurrency(parseMoney(row.fine) + parseMoney(row.interest)) : '-',
+      row.total ? formatCurrency(parseMoney(row.total)) : '-'
+    ];
+    let x = marginX;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.2);
+    doc.setTextColor(...PDF_COLORS.text);
+    values.forEach((value, columnIndex) => {
+      const align = columnIndex >= 3 ? 'right' : columnIndex === 2 ? 'center' : 'left';
+      const cellWidth = tableColumnWidths[columnIndex];
+      const offset = align === 'right' ? cellWidth - 2 : align === 'center' ? cellWidth / 2 : 2;
+      doc.text(value, x + offset, y + 5.15, { align, maxWidth: cellWidth - 4 });
+      x += cellWidth;
+    });
+    y += rowHeight;
+  };
+
+  const drawYearTotals = (group: (typeof yearGroups)[number]) => {
+    if (y + 24 > contentBottom) {
+      addPage();
+      drawGroupLabel(group.year === null ? 'DAS sem ano informado' : `DAS - ${group.year}`, group.totals.total, group.recordCount, true);
+    }
+    const gap = 3;
+    const width = (178 - gap * 3) / 4;
+    const items = [
+      ['Principal', group.totals.principal],
+      ['Multa', group.totals.fine],
+      ['Juros', group.totals.interest],
+      [group.year === null ? 'Total' : `Total ${group.year}`, group.totals.total]
+    ] as const;
+    y += 3;
+    items.forEach(([label, value], index) => {
+      const x = marginX + index * (width + gap);
+      const featured = index === items.length - 1;
+      doc.setFillColor(...PDF_COLORS.blueSoft);
+      doc.setDrawColor(...(featured ? PDF_COLORS.blue : PDF_COLORS.border));
+      doc.setLineWidth(featured ? 0.4 : 0.2);
+      doc.roundedRect(x, y, width, 13, 1.8, 1.8, 'FD');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.5);
+      doc.setTextColor(...PDF_COLORS.textFaint);
+      doc.text(label, x + 2.3, y + 4.2);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.8);
+      doc.setTextColor(...(featured ? PDF_COLORS.blue : PDF_COLORS.text));
+      doc.text(formatCurrency(value), x + width - 2.3, y + 9.6, { align: 'right', maxWidth: width - 4.6 });
+    });
+    y += 19;
+  };
+
+  drawHeader(false);
+
+  sectionTitle('Identificação');
+  const drawInfoLine = (label: string, value: string, maxWidth = 145) => {
+    checkBreak(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.7);
+    doc.setTextColor(...PDF_COLORS.textSoft);
+    doc.text(`${label}:`, marginX, y);
+    doc.setTextColor(...PDF_COLORS.text);
+    const labelWidth = Math.max(22, doc.getTextWidth(`${label}:`) + 5);
+    const valueLines = doc.splitTextToSize(value || '-', maxWidth) as string[];
+    doc.text(valueLines, marginX + labelWidth, y);
+    y += Math.max(6.2, valueLines.length * 4.8);
+  };
+  drawInfoLine('Cliente', data.customer.name, 145);
+  drawInfoLine('CNPJ', data.customer.cnpj, 145);
+  drawInfoLine('Origem', data.source, 145);
+  y += 10;
+
+  sectionTitle('Resumo financeiro geral');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.2);
+  doc.setTextColor(...PDF_COLORS.textSoft);
+  doc.text(`${rows.length} ${rows.length === 1 ? 'competência registrada' : 'competências registradas'} em ${yearGroups.filter((group) => group.year !== null).length} ${yearGroups.filter((group) => group.year !== null).length === 1 ? 'ano' : 'anos'}.`, marginX, y);
+  y += 5;
+  drawSummaryCards();
+
+  if (yearGroups.length) {
+    y += 8;
+    sectionTitle('Resumo por ano');
+    drawAnnualHeader();
+    yearGroups.forEach(drawAnnualRow);
+    y += 12;
+
+    sectionTitle('Detalhamento das competências');
+    yearGroups.forEach((group) => {
+      checkBreak(34);
+      drawGroupLabel(group.year === null ? 'DAS sem ano informado' : `DAS - ${group.year}`, group.totals.total, group.recordCount);
+      drawTableHeader();
+      group.rows.forEach((row, index) => drawTableRow(group, row, index));
+      drawYearTotals(group);
+      y += 12;
+    });
+  }
+
+  if (data.orientation.trim()) {
+    y += 2;
+    sectionTitle('Orientação ao Cliente');
+    writeWrappedText(data.orientation);
+    y += 4;
+  }
+
+  if (data.notes.trim()) {
+    sectionTitle('Observações');
+    writeWrappedText(data.notes);
+  }
+
+  drawFooter();
+  const filename = `Pendencias_DAS_${sanitizeFilename(data.customer.name || 'Cliente')}_${data.analysisDate}.pdf`;
+  return { arrayBuffer: doc.output('arraybuffer'), filename };
+}
+
 export async function buildFinalPdf(
   data: DiagnosticPdfData,
   certificates: CertificateItem[],
@@ -346,6 +706,54 @@ export async function buildFinalPdf(
     finalBytes.byteOffset + finalBytes.byteLength
   ) as ArrayBuffer;
   return { blob: new Blob([outputBuffer], { type: 'application/pdf' }), filename: report.filename };
+}
+
+
+export async function buildDasPdf(
+  data: DasPdfData,
+  logoUrl: string
+): Promise<{ blob: Blob; filename: string }> {
+  const logoDataUrl = await imageUrlToDataUrl(logoUrl);
+  const report = buildDasReportPdf(data, logoDataUrl);
+  return { blob: new Blob([report.arrayBuffer], { type: 'application/pdf' }), filename: report.filename };
+}
+
+async function appendPdfBuffer(target: PDFDocument, sourceBuffer: ArrayBuffer): Promise<void> {
+  const source = await PDFDocument.load(sourceBuffer);
+  const pages = await target.copyPages(source, source.getPageIndices());
+  pages.forEach((page) => target.addPage(page));
+}
+
+export async function buildCombinedPdf(
+  diagnosticData: DiagnosticPdfData,
+  certificates: CertificateItem[],
+  logoUrl: string,
+  dasData?: DasPdfData
+): Promise<{ blob: Blob; filename: string }> {
+  const logoDataUrl = await imageUrlToDataUrl(logoUrl);
+  const diagnosticReport = buildReportPdf(diagnosticData, logoDataUrl);
+  const combined = await PDFDocument.create();
+  await appendPdfBuffer(combined, diagnosticReport.arrayBuffer);
+
+  if (dasData?.rows.length) {
+    const dasReport = buildDasReportPdf(dasData, logoDataUrl);
+    await appendPdfBuffer(combined, dasReport.arrayBuffer);
+  }
+
+  for (const certificate of certificates) {
+    const bytes = await certificate.file.arrayBuffer();
+    const source = await PDFDocument.load(bytes);
+    const pages = await combined.copyPages(source, source.getPageIndices());
+    pages.forEach((page) => combined.addPage(page));
+  }
+
+  const finalBytes = await combined.save();
+  const outputBuffer = finalBytes.buffer.slice(
+    finalBytes.byteOffset,
+    finalBytes.byteOffset + finalBytes.byteLength
+  ) as ArrayBuffer;
+  const filename = `Diagnostico_Completo_${sanitizeFilename(diagnosticData.customer.name || 'Cliente')}_${diagnosticData.customer.consultationDate}.pdf`;
+  return { blob: new Blob([outputBuffer], { type: 'application/pdf' }), filename };
 }
 
 export function downloadPdfBlob(blob: Blob, filename: string): void {
