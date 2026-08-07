@@ -13,6 +13,7 @@
         rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js" crossorigin="anonymous"></script>
     <style>
         :root {
             --navy-950: #091027;
@@ -1045,6 +1046,153 @@
             font-style: italic;
         }
 
+        /* ---------- Certificados do CNPJ ---------- */
+        .certificate-upload-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .certificate-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .btn-certificate-add {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--blue-100);
+            color: var(--blue-700);
+            border-color: #CBD3FF;
+            white-space: nowrap;
+        }
+
+        .btn-certificate-add:hover {
+            background: #DCE2FF;
+            border-color: #AEB9FF;
+        }
+
+        .certificate-upload-help {
+            flex: 1 1 260px;
+            min-width: 0;
+            font-size: 11.5px;
+            line-height: 1.45;
+            color: var(--text-faint);
+        }
+
+        .certificates-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .certificates-list:empty {
+            display: none;
+        }
+
+        .certificate-file {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #FCFCFE;
+            transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+        }
+
+        .certificate-file:hover {
+            border-color: #C7CFE5;
+            background: #fff;
+            box-shadow: 0 7px 18px rgba(14, 22, 51, .05);
+        }
+
+        .certificate-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 10px;
+            background: #FFF8E8;
+            border: 1px solid #F1E4BF;
+            color: #E79817;
+        }
+
+        .certificate-icon svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+        }
+
+        .certificate-copy {
+            min-width: 0;
+        }
+
+        .certificate-copy strong {
+            display: block;
+            font-size: 12.5px;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .certificate-copy small {
+            display: block;
+            margin-top: 3px;
+            font-size: 11px;
+            color: var(--text-faint);
+        }
+
+        .certificate-remove {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border: 1px solid transparent;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-faint);
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease, color .15s ease;
+        }
+
+        .certificate-remove:hover {
+            background: var(--red-bg);
+            border-color: #F0B8B3;
+            color: var(--red);
+        }
+
+        .certificate-security-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 9px 11px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--surface-soft);
+            color: var(--text-faint);
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
         .history-item {
             display: flex;
             align-items: center;
@@ -1338,7 +1486,8 @@
                 align-items: stretch;
             }
 
-            .servicos-list {
+            .servicos-list,
+            .certificates-list {
                 grid-template-columns: 1fr;
             }
 
@@ -1657,6 +1806,33 @@
                     </div>
                 </section>
 
+                <section class="card" aria-labelledby="tituloCertificados">
+                    <div class="section-head">
+                        <div class="section-title-wrap"><span class="section-icon" aria-hidden="true">06</span>
+                            <div>
+                                <h2 id="tituloCertificados">Certificado do CNPJ</h2>
+                                <p class="card-sub">Opcional. Adicione um ou mais certificados em PDF para anexar ao
+                                    final do diagnóstico.</p>
+                            </div>
+                        </div>
+                        <span class="section-badge" id="certificatesCount">0 adicionados</span>
+                    </div>
+                    <div class="certificate-upload-row">
+                        <input id="certificadoInput" class="certificate-input" type="file" accept="application/pdf,.pdf"
+                            multiple aria-describedby="certificadoHelp">
+                        <button id="btnAddCertificado" class="btn btn-certificate-add" type="button">+ Adicionar
+                            certificado</button>
+                        <!-- <span class="certificate-upload-help" id="certificadoHelp">Somente arquivos PDF. O relatório
+                            será gerado primeiro e os certificados serão acrescentados, na ordem em que aparecem
+                            abaixo.</span> -->
+                    </div>
+                    <div class="certificates-list" id="certificadosList" aria-label="Certificados adicionados"
+                        aria-live="polite"></div>
+                    <div class="certificate-security-note"><span aria-hidden="true">i</span><span>Os
+                            arquivos dos certificados não são armazenados no histórico do navegador. Ao iniciar ou
+                            duplicar um relatório, será necessário adicioná-los novamente.</span></div>
+                </section>
+
             </section>
 
             <aside class="col-side" aria-label="Informações complementares">
@@ -1788,6 +1964,7 @@
                 activeRecommendations: [],
                 recommendationSnapshots: {},
                 selectedServices: [],
+                certificates: [],
                 razaoSocialAuto: true,
                 history: []
             };
@@ -1859,6 +2036,7 @@
             function syncAutomaticRazaoSocial({ force = false } = {}) { const generated = buildAutomaticRazaoSocial(); if (!generated) { if (force || state.razaoSocialAuto) els.razaoSocial.value = ''; setRazaoSocialAutoState(force || state.razaoSocialAuto); return; } if (force || state.razaoSocialAuto || !els.razaoSocial.value.trim()) { els.razaoSocial.value = generated; setRazaoSocialAutoState(true); } }
             function formatList(items) { if (items.length <= 1) return items[0] || ''; if (items.length === 2) return `${items[0]} e ${items[1]}`; return `${items.slice(0, -1).join(', ')} e ${items.at(-1)}`; }
             function normalizeTextarea(value) { return String(value || '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim(); }
+            function formatFileSize(bytes) { const size = Number(bytes) || 0; if (size < 1024) return `${size} B`; if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`; return `${(size / (1024 * 1024)).toFixed(size >= 10 * 1024 * 1024 ? 0 : 1).replace('.', ',')} MB`; }
             function deepCopy(value) { return JSON.parse(JSON.stringify(value)); }
             let idCounter = 0;
             function generateCustomId(prefix) { idCounter += 1; return `${prefix}_${Date.now()}_${idCounter}`; }
@@ -1895,7 +2073,7 @@
 
             /* ============ ELEMENTS ============ */
             const els = {
-                nome: document.getElementById('nome'), cnpj: document.getElementById('cnpj'), razaoSocial: document.getElementById('razaoSocial'), data: document.getElementById('dataConsulta'), recomendacoes: document.getElementById('recomendacoes'), observacoes: document.getElementById('observacoes'), statusPill: document.getElementById('statusPill'), situacaoOptions: document.getElementById('situacaoOptions'), pendenciasList: document.getElementById('pendenciasList'), novaPendenciaInput: document.getElementById('novaPendenciaInput'), textLib: document.getElementById('textLib'), servicosList: document.getElementById('servicosList'), historyList: document.getElementById('historyList'), templateSelect: document.getElementById('templateSelect'), pendenciasCount: document.getElementById('pendenciasCount'), recomendacoesCount: document.getElementById('recomendacoesCount'), servicesCount: document.getElementById('servicesCount'),
+                nome: document.getElementById('nome'), cnpj: document.getElementById('cnpj'), razaoSocial: document.getElementById('razaoSocial'), data: document.getElementById('dataConsulta'), recomendacoes: document.getElementById('recomendacoes'), observacoes: document.getElementById('observacoes'), statusPill: document.getElementById('statusPill'), situacaoOptions: document.getElementById('situacaoOptions'), pendenciasList: document.getElementById('pendenciasList'), novaPendenciaInput: document.getElementById('novaPendenciaInput'), textLib: document.getElementById('textLib'), servicosList: document.getElementById('servicosList'), historyList: document.getElementById('historyList'), templateSelect: document.getElementById('templateSelect'), pendenciasCount: document.getElementById('pendenciasCount'), recomendacoesCount: document.getElementById('recomendacoesCount'), servicesCount: document.getElementById('servicesCount'), certificadoInput: document.getElementById('certificadoInput'), certificadosList: document.getElementById('certificadosList'), certificatesCount: document.getElementById('certificatesCount'), btnAddCertificado: document.getElementById('btnAddCertificado'),
                 simplesStatus: document.getElementById('simplesStatus'), simplesPeriodo: document.getElementById('simplesPeriodo'), simplesData: document.getElementById('simplesData'), simplesMes: document.getElementById('simplesMes'), simplesAno: document.getElementById('simplesAno'), simplesDataWrap: document.getElementById('simplesDataWrap'), simplesMesWrap: document.getElementById('simplesMesWrap'), simplesAnoWrap: document.getElementById('simplesAnoWrap'), simplesPreview: document.getElementById('simplesPreview'),
                 simeiStatus: document.getElementById('simeiStatus'), simeiPeriodo: document.getElementById('simeiPeriodo'), simeiData: document.getElementById('simeiData'), simeiMes: document.getElementById('simeiMes'), simeiAno: document.getElementById('simeiAno'), simeiDataWrap: document.getElementById('simeiDataWrap'), simeiMesWrap: document.getElementById('simeiMesWrap'), simeiAnoWrap: document.getElementById('simeiAnoWrap'), simeiPreview: document.getElementById('simeiPreview')
             };
@@ -2382,6 +2560,67 @@
                 renderServicos();
             });
 
+            /* ============ CERTIFICADOS DO CNPJ ============ */
+            function certificateFileKey(file) {
+                return `${file.name}::${file.size}::${file.lastModified}`;
+            }
+            function isPdfFile(file) {
+                return Boolean(file) && (file.type === 'application/pdf' || /\.pdf$/i.test(file.name || ''));
+            }
+            function renderCertificates() {
+                const count = state.certificates.length;
+                els.certificatesCount.textContent = `${count} ${count === 1 ? 'adicionado' : 'adicionados'}`;
+                els.certificadosList.innerHTML = state.certificates.map(item => `
+                    <div class="certificate-file" data-certificate-card="${item.id}">
+                        <span class="certificate-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 2.75h6.5L18.5 8v13.25H7z"></path>
+                                <path d="M13.5 2.75V8h5"></path>
+                                <path d="M9.5 12h6"></path>
+                                <path d="M9.5 15h6"></path>
+                            </svg>
+                        </span>
+                        <span class="certificate-copy">
+                            <strong title="${escapeHtml(item.file.name)}">${escapeHtml(item.file.name)}</strong>
+                            <small>${escapeHtml(formatFileSize(item.file.size))} · PDF</small>
+                        </span>
+                        <button type="button" class="certificate-remove" data-remove-certificate="${item.id}" aria-label="Remover certificado ${escapeHtml(item.file.name)}">×</button>
+                    </div>
+                `).join('');
+            }
+            function addCertificateFiles(fileList) {
+                const files = Array.from(fileList || []);
+                if (!files.length) return;
+                const existingKeys = new Set(state.certificates.map(item => certificateFileKey(item.file)));
+                let added = 0;
+                let invalid = 0;
+                let duplicates = 0;
+                files.forEach(file => {
+                    if (!isPdfFile(file)) { invalid += 1; return; }
+                    const key = certificateFileKey(file);
+                    if (existingKeys.has(key)) { duplicates += 1; return; }
+                    existingKeys.add(key);
+                    state.certificates.push({ id: generateCustomId('certificate'), file });
+                    added += 1;
+                });
+                els.certificadoInput.value = '';
+                renderCertificates();
+                if (added && !invalid && !duplicates) toast(`${added} ${added === 1 ? 'certificado adicionado' : 'certificados adicionados'}.`);
+                else if (added) toast(`${added} arquivo(s) adicionado(s). ${invalid ? `${invalid} ignorado(s) por não serem PDF. ` : ''}${duplicates ? `${duplicates} duplicado(s) ignorado(s).` : ''}`.trim());
+                else if (invalid) toast('Selecione somente arquivos PDF para os certificados.');
+                else if (duplicates) toast('Os certificados selecionados já foram adicionados.');
+            }
+            els.btnAddCertificado.addEventListener('click', () => els.certificadoInput.click());
+            els.certificadoInput.addEventListener('change', event => addCertificateFiles(event.target.files));
+            els.certificadosList.addEventListener('click', event => {
+                const removeButton = event.target.closest('[data-remove-certificate]');
+                if (!removeButton) return;
+                const id = removeButton.dataset.removeCertificate;
+                state.certificates = state.certificates.filter(item => item.id !== id);
+                renderCertificates();
+                toast('Certificado removido.');
+            });
+
             /* ============ TEMPLATES / RESET ============ */
             function applyRecommendationSet(ids) {
                 state.activeRecommendations = []; state.recommendationSnapshots = {}; els.recomendacoes.value = '';
@@ -2400,8 +2639,8 @@
             document.getElementById('btnReset').addEventListener('click', () => {
                 if (!confirm('Iniciar um novo relatório? Os campos preenchidos serão apagados.')) return;
                 els.nome.value = ''; els.cnpj.value = ''; els.razaoSocial.value = ''; els.data.value = todayISO(); els.recomendacoes.value = ''; els.observacoes.value = '';
-                state.situacao = 'regular'; state.pendencias = []; state.customPendencias = []; state.pendenciaYears = {}; state.pendenciaCompetencias = { das: [] }; state.yearEditors = {}; state.activeRecommendations = []; state.recommendationSnapshots = {}; state.selectedServices = []; setRazaoSocialAutoState(true); setCurrentStatusFields(createEmptyCurrentStatus());
-                clearFieldError('nome'); clearFieldError('cnpj'); updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); toast('Novo relatório iniciado.');
+                state.situacao = 'regular'; state.pendencias = []; state.customPendencias = []; state.pendenciaYears = {}; state.pendenciaCompetencias = { das: [] }; state.yearEditors = {}; state.activeRecommendations = []; state.recommendationSnapshots = {}; state.selectedServices = []; state.certificates = []; els.certificadoInput.value = ''; setRazaoSocialAutoState(true); setCurrentStatusFields(createEmptyCurrentStatus());
+                clearFieldError('nome'); clearFieldError('cnpj'); updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); renderCertificates(); toast('Novo relatório iniciado.');
             });
 
             /* ============ VALIDATION ============ */
@@ -2706,9 +2945,63 @@
                 }
 
                 const filename = `Diagnostico_${sanitizeFilename(data.nome)}_${data.dataISO}.pdf`;
-                if (outputMode === 'preview') return doc.output('bloburl');
-                doc.save(filename);
-                return null;
+                return { arrayBuffer: doc.output('arraybuffer'), filename };
+            }
+
+            async function buildFinalPDF(data) {
+                const report = buildPDF(data, 'arraybuffer');
+                const certificates = [...state.certificates];
+                if (!certificates.length) {
+                    return { blob: new Blob([report.arrayBuffer], { type: 'application/pdf' }), filename: report.filename };
+                }
+                if (!window.PDFLib || !window.PDFLib.PDFDocument) {
+                    const error = new Error('Biblioteca pdf-lib indisponível para anexar certificados.');
+                    error.code = 'PDF_LIB_UNAVAILABLE';
+                    throw error;
+                }
+                const { PDFDocument } = window.PDFLib;
+                const finalDoc = await PDFDocument.load(report.arrayBuffer);
+                for (const certificate of certificates) {
+                    try {
+                        const certificateBytes = await certificate.file.arrayBuffer();
+                        const certificateDoc = await PDFDocument.load(certificateBytes);
+                        const copiedPages = await finalDoc.copyPages(certificateDoc, certificateDoc.getPageIndices());
+                        copiedPages.forEach(page => finalDoc.addPage(page));
+                    } catch (cause) {
+                        const error = new Error(`Não foi possível anexar o certificado ${certificate.file.name}.`);
+                        error.code = 'INVALID_CERTIFICATE_PDF';
+                        error.certificateName = certificate.file.name;
+                        error.cause = cause;
+                        throw error;
+                    }
+                }
+                const finalBytes = await finalDoc.save();
+                return { blob: new Blob([finalBytes], { type: 'application/pdf' }), filename: report.filename };
+            }
+
+            function downloadPdfBlob(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = filename;
+                anchor.style.display = 'none';
+                document.body.appendChild(anchor);
+                anchor.click();
+                anchor.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 60000);
+            }
+
+            function handlePdfBuildError(error, actionLabel) {
+                console.error(error);
+                if (error?.code === 'PDF_LIB_UNAVAILABLE') {
+                    toast('Não foi possível anexar os certificados porque a biblioteca de PDF não carregou. Verifique a conexão e recarregue a página.');
+                    return;
+                }
+                if (error?.code === 'INVALID_CERTIFICATE_PDF') {
+                    toast(`O certificado "${error.certificateName}" não pôde ser lido. Use um PDF válido e sem senha.`);
+                    return;
+                }
+                toast(`Não foi possível ${actionLabel} o PDF. Verifique a conexão e tente novamente.`);
             }
 
             /* ============ HISTORY ============ */
@@ -2722,9 +3015,9 @@
                 const report = state.history.find(item => String(item.id) === String(id)); if (!report) return;
                 els.nome.value = report.nome || ''; els.cnpj.value = report.cnpj || ''; els.razaoSocial.value = report.razaoSocial || ''; els.data.value = todayISO(); els.recomendacoes.value = report.recomendacoes || ''; els.observacoes.value = report.observacoes || '';
                 const automaticRazao = buildAutomaticRazaoSocial(); setRazaoSocialAutoState(!report.razaoSocial || report.razaoSocial === automaticRazao); if (!report.razaoSocial) syncAutomaticRazaoSocial();
-                state.situacao = report.situacao || 'regular'; setCurrentStatusFields(report.situacaoAtual || createEmptyCurrentStatus()); state.pendencias = [...(report.pendenciasIds || [])]; state.customPendencias = deepCopy(report.customPendencias || []); state.pendenciaYears = deepCopy(report.pendenciaYears || {}); state.pendenciaCompetencias = deepCopy(report.pendenciaCompetencias || { das: [] }); state.yearEditors = {}; state.selectedServices = normalizeSelectedServices(report.selectedServices || []); state.activeRecommendations = [...(report.activeRecommendations || inferRecommendationIds(report.recomendacoes || ''))]; state.recommendationSnapshots = {}; state.activeRecommendations.forEach(recId => state.recommendationSnapshots[recId] = getRecommendationText(recId));
+                state.situacao = report.situacao || 'regular'; setCurrentStatusFields(report.situacaoAtual || createEmptyCurrentStatus()); state.pendencias = [...(report.pendenciasIds || [])]; state.customPendencias = deepCopy(report.customPendencias || []); state.pendenciaYears = deepCopy(report.pendenciaYears || {}); state.pendenciaCompetencias = deepCopy(report.pendenciaCompetencias || { das: [] }); state.yearEditors = {}; state.selectedServices = normalizeSelectedServices(report.selectedServices || []); state.certificates = []; els.certificadoInput.value = ''; state.activeRecommendations = [...(report.activeRecommendations || inferRecommendationIds(report.recomendacoes || ''))]; state.recommendationSnapshots = {}; state.activeRecommendations.forEach(recId => state.recommendationSnapshots[recId] = getRecommendationText(recId));
                 enforceDiagnosticConsistency({ render: false, updateStatus: false });
-                updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Relatório duplicado. Ajuste os detalhes e gere o novo PDF.');
+                updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); renderCertificates(); window.scrollTo({ top: 0, behavior: 'smooth' }); toast('Relatório duplicado. Adicione novamente os certificados, se necessário.');
             }
             async function deleteReport(id) { if (!confirm('Excluir este relatório do histórico?')) return; state.history = state.history.filter(item => String(item.id) !== String(id)); await saveHistoryList(state.history); renderHistory(); }
 
@@ -2739,24 +3032,29 @@
                 btnVisualizarPDF.textContent = isBusy && activeButton === btnVisualizarPDF ? 'Preparando visualização…' : 'Visualizar PDF';
             }
 
-            btnVisualizarPDF.addEventListener('click', () => {
+            btnVisualizarPDF.addEventListener('click', async () => {
                 if (btnVisualizarPDF.disabled || !validate()) return;
+                const previewWindow = window.open('', '_blank');
+                if (!previewWindow) {
+                    toast('O navegador bloqueou a nova aba. Permita pop-ups para visualizar o PDF.');
+                    return;
+                }
+                try {
+                    previewWindow.opener = null;
+                    previewWindow.document.title = 'Preparando PDF…';
+                    previewWindow.document.body.innerHTML = '<p style="font-family:Arial,sans-serif;padding:24px;color:#333;">Preparando visualização do PDF…</p>';
+                } catch (error) { /* a aba foi aberta; segue normalmente */ }
                 setPdfButtonsBusy(true, btnVisualizarPDF);
                 try {
                     const data = collectData();
-                    const pdfUrl = buildPDF(data, 'preview');
-                    const previewWindow = window.open(pdfUrl, '_blank');
-                    if (!previewWindow) {
-                        URL.revokeObjectURL(pdfUrl);
-                        toast('O navegador bloqueou a nova aba. Permita pop-ups para visualizar o PDF.');
-                        return;
-                    }
-                    try { previewWindow.opener = null; } catch (error) { /* restrição do navegador, sem impacto na visualização */ }
+                    const result = await buildFinalPDF(data);
+                    const pdfUrl = URL.createObjectURL(result.blob);
+                    previewWindow.location.replace(pdfUrl);
                     setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
-                    toast('PDF aberto em uma nova aba para visualização.');
+                    toast(state.certificates.length ? 'PDF com certificado(s) aberto em uma nova aba.' : 'PDF aberto em uma nova aba para visualização.');
                 } catch (error) {
-                    console.error(error);
-                    toast('Não foi possível visualizar o PDF. Verifique a conexão e tente novamente.');
+                    try { previewWindow.close(); } catch (closeError) { /* sem impacto */ }
+                    handlePdfBuildError(error, 'visualizar');
                 } finally {
                     setPdfButtonsBusy(false);
                 }
@@ -2767,16 +3065,16 @@
                 setPdfButtonsBusy(true, btnGerarPDF);
                 try {
                     const data = collectData();
-                    buildPDF(data, 'save');
+                    const result = await buildFinalPDF(data);
+                    downloadPdfBlob(result.blob, result.filename);
                     const entry = { id: generateCustomId('report'), nome: data.nome, cnpj: data.cnpj, razaoSocial: data.razaoSocial, dataFormatted: data.dataFormatted, situacao: data.situacao, situacaoAtual: deepCopy(data.situacaoAtual), pendenciasIds: [...state.pendencias], customPendencias: deepCopy(state.customPendencias), pendenciaYears: deepCopy(state.pendenciaYears), pendenciaCompetencias: deepCopy(state.pendenciaCompetencias), activeRecommendations: [...state.activeRecommendations], selectedServices: normalizeSelectedServices(state.selectedServices), recomendacoes: data.recomendacoes, observacoes: data.observacoes };
                     state.history.push(entry);
                     if (state.history.length > 30) state.history = state.history.slice(-30);
                     await saveHistoryList(state.history);
                     renderHistory();
-                    toast('PDF gerado e baixado com sucesso.');
+                    toast(state.certificates.length ? 'PDF gerado com certificado(s) e baixado com sucesso.' : 'PDF gerado e baixado com sucesso.');
                 } catch (error) {
-                    console.error(error);
-                    toast('Não foi possível gerar o PDF. Verifique a conexão e tente novamente.');
+                    handlePdfBuildError(error, 'gerar');
                 } finally {
                     setPdfButtonsBusy(false);
                 }
@@ -2785,7 +3083,7 @@
 
             async function init() {
                 setRazaoSocialAutoState(true); syncAutomaticRazaoSocial(); setCurrentStatusFields(state.situacaoAtual);
-                updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos();
+                updateStatusPill(); renderPendencias(); renderTextLib(); renderServicos(); renderCertificates();
                 if (!hasClaudeStorage) document.getElementById('historyHint').textContent = 'Histórico salvo neste navegador (local).';
                 state.history = await loadHistory(); renderHistory();
                 if (!window.jspdf || !window.jspdf.jsPDF) toast('Atenção: a biblioteca de geração de PDF não carregou. Verifique a conexão e recarregue a página.');
