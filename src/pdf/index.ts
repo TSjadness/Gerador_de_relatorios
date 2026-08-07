@@ -299,7 +299,7 @@ function buildReportPdf(data: DiagnosticPdfData, logoDataUrl: string) {
   drawLinkButton(marginX, y, buttonWidth, 'Falar com o especialista', PDF_LINKS.specialist, true);
   drawLinkButton(marginX + buttonWidth + gap, y, buttonWidth, 'Conhecer Planos', PDF_LINKS.plans, false);
 
-  const reportPageCount = doc.internal.getNumberOfPages();
+  const reportPageCount = doc.getNumberOfPages();
   for (let page = 1; page <= reportPageCount; page += 1) {
     doc.setPage(page);
     doc.setFillColor(...PDF_COLORS.navy);
@@ -367,7 +367,7 @@ function buildDasReportPdf(data: DasPdfData, logoDataUrl: string) {
   };
 
   const drawFooter = () => {
-    const pageCount = doc.internal.getNumberOfPages();
+    const pageCount = doc.getNumberOfPages();
     for (let page = 1; page <= pageCount; page += 1) {
       doc.setPage(page);
       doc.setFillColor(...PDF_COLORS.navy);
